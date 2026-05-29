@@ -57,17 +57,19 @@ Se documento el proyecto como ChronoWave Studio y se reemplazo el README minimo 
 | Revision manual de `README.md` | ejecutado | README contiene fecha 2026-05-29, objetivo, stack, arquitectura, colaboracion y advertencias de costos/licencias. |
 | Revision manual de `docs/planes/2026-05-29-plan-maestro-chronowave-studio.md` | ejecutado | El plan documenta producto, plataformas, stack, monetizacion, datos locales, exportacion, MVP balanceado, fases y riesgos. |
 | Revision manual de `docs/reportes/INDICE.md` | ejecutado | La fila de este reporte quedo al inicio de la tabla. |
-| `git status --short` final | pendiente al crear este reporte | Se ejecuta despues de inicializar Git y publicar, y el resultado final se comunica al usuario. |
-| `git remote -v` final | pendiente al crear este reporte | Se ejecuta despues de crear el remoto `origin`. |
-| `gh repo view YosepYordi/chronowave-studio --json name,visibility,url` final | pendiente al crear este reporte | Se ejecuta despues de crear el repositorio remoto. |
+| `git status --short` final | ejecutado | Sin salida despues del primer push; el arbol quedo limpio antes de actualizar esta evidencia final. |
+| `git branch --show-current` final | ejecutado | Rama local: `main`. |
+| `git remote -v` final | ejecutado | `origin` apunta a `https://github.com/YosepYordi/chronowave-studio.git` para fetch y push. |
+| `gh repo view YosepYordi/chronowave-studio --json name,visibility,url,defaultBranchRef` final | ejecutado | GitHub devolvio `name=chronowave-studio`, `visibility=PRIVATE`, `url=https://github.com/YosepYordi/chronowave-studio`, `defaultBranchRef=main`. |
+| `git log --oneline --decorate -1` | ejecutado | Primer commit publicado: `323c894 docs: establish ChronoWave Studio project plan`. |
 
 ## 8. GitHub al finalizar
 
 - Se pregunto al humano si quiere enviar los cambios a GitHub: si
 - Respuesta del humano, si existe: el usuario pidio implementar el plan y subir el proyecto a GitHub.
-- Rama sugerida: `main`
-- Mensaje de commit sugerido: `docs: establish ChronoWave Studio project plan`
-- Metodo sugerido: push directo al repositorio privado inicial
+- Rama usada: `main`
+- Mensaje de commit usado: `docs: establish ChronoWave Studio project plan`
+- Metodo usado: push directo al repositorio privado inicial `YosepYordi/chronowave-studio`
 
 ## 9. Riesgos y pendientes
 
