@@ -9,6 +9,8 @@ ChronoWave Studio es una app de edicion multitrack de video y audio pensada para
 
 Este repositorio esta en fase inicial de planificacion tecnica. Todavia no contiene codigo de aplicacion, motor multimedia ni proyecto Flutter generado. La prioridad actual es dejar una base documentada para que varias IAs o integrantes puedan colaborar sin perder contexto.
 
+El repositorio se mantiene publico para habilitar funciones gratuitas de GitHub como el grafo de dependencias y facilitar revision del equipo. No deben subirse secretos, credenciales, archivos privados, dependencias instaladas ni artefactos generados.
+
 ## Producto objetivo
 
 - App movil Android primero, compatible desde Android 10.

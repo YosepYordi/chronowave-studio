@@ -4,4 +4,5 @@ Agrega cada reporte nuevo al inicio de esta tabla. Mantener este indice ayuda a 
 
 | Fecha y hora | IA / integrante | Area | Reporte | Resumen |
 | --- | --- | --- | --- | --- |
+| 2026-05-29 10:03 -05:00 | Codex | infra / docs | [2026-05-29-1003_codex_infra_visibilidad-publica.md](2026-05-29-1003_codex_infra_visibilidad-publica.md) | Cambia el repositorio a publico para habilitar funciones gratuitas de GitHub como el grafo de dependencias. |
 | 2026-05-29 09:52 -05:00 | Codex | docs / publicacion inicial | [2026-05-29-0952_codex_docs_publicacion-inicial.md](2026-05-29-0952_codex_docs_publicacion-inicial.md) | Define README y plan maestro de ChronoWave Studio; prepara publicacion privada en GitHub. |

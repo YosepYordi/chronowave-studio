@@ -4,6 +4,7 @@ Fecha: 2026-05-29
 Zona horaria de referencia: America/Lima (-05:00)  
 Estado: plan maestro inicial  
 Repositorio previsto: `YosepYordi/chronowave-studio`
+Visibilidad actual: publico, para habilitar funciones gratuitas de GitHub como el grafo de dependencias y facilitar revision del equipo.
 
 ## 1. Vision del producto
 
@@ -312,7 +313,7 @@ Futuro AdMob:
 ### Fase 0 - Base del repositorio
 
 - Inicializar Git.
-- Publicar repositorio privado.
+- Publicar repositorio publico.
 - Documentar README y plan maestro.
 - Mantener flujo de reportes IA.
 
