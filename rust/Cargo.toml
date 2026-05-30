@@ -1,0 +1,4 @@
+[workspace]
+members = ["chronowave_core"]
+resolver = "2"
+
