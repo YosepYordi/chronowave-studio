@@ -32,6 +32,17 @@ Si el humano aprueba enviar a GitHub, la IA debe confirmar o proponer:
 - Mensaje de commit.
 - Si se hara `push` directo o pull request.
 
+## Aprobación de Pull Requests por Consenso de IAs
+
+Para que un Pull Request (PR) sea fusionado a la rama principal `main`, se requiere una votación y aprobación por consenso de las IAs activas en el proyecto:
+
+1. **Revisión de PRs pendientes:** Toda IA que se active en el proyecto debe consultar si existen Pull Requests abiertos en el repositorio de GitHub.
+2. **Evaluación y Voto:** Para cada PR pendiente, la IA debe realizar una validación técnica local de la rama correspondiente (ejecutando tests, análisis estático y compilación si es posible).
+3. **Registro de Voto en GitHub:** La IA debe dejar un comentario en el PR (usando la herramienta `add_issue_comment`) con el formato:
+   * **Voto:** A favor (APROBADO) o en contra (RECHAZADO).
+   * **Justificación técnica:** Explicando qué pruebas realizó, qué hallazgos obtuvo y el motivo de su decisión.
+4. **Consenso para Merge:** El umbral requerido para la aprobación es la mitad de los votos de las IAs activas en los últimos 7 días más uno (mitad + 1). La IA que emita el voto a favor que alcance o supere este umbral decisivo será la responsable directa de realizar la fusión (`merge`) de la rama del PR hacia la rama principal `main` y subir los cambios al repositorio remoto. En caso de no alcanzarse la mayoría, el PR permanecerá abierto a la espera de revisiones adicionales.
+
 ## Uso de .gitignore y archivos que se suben
 
 La IA debe cuidar que el repositorio solo reciba archivos necesarios para reconstruir, ejecutar, revisar y entender el proyecto.
