@@ -7,7 +7,7 @@ ChronoWave Studio es una app de edicion multitrack de video y audio pensada para
 
 ## Estado actual
 
-Este repositorio esta en fase inicial de base tecnica. Ya contiene un proyecto Flutter Android, una pantalla inicial de ChronoWave Studio, configuracion Android 10+ y un crate Rust inicial para preparar el nucleo portable. La integracion GStreamer/GES y el puente Flutter-Rust completo siguen como siguientes hitos.
+Este repositorio esta en fase inicial de base tecnica. Ya contiene un proyecto Flutter Android, una shell inicial con secciones de proyectos, editor, exportacion y ajustes, configuracion Android 10+ y un crate Rust inicial para preparar el nucleo portable. La integracion GStreamer/GES, Drift/SQLite y el puente Flutter-Rust completo siguen como siguientes hitos.
 
 El repositorio se mantiene publico para habilitar funciones gratuitas de GitHub como el grafo de dependencias y facilitar revision del equipo. No deben subirse secretos, credenciales, archivos privados, dependencias instaladas ni artefactos generados.
 
