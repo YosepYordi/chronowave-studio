@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/database/database.dart';
+import '../../core/ffi/chronowave_ffi.dart';
+import '../../domain/project/project_model.dart';
 
 class ExportScreen extends StatefulWidget {
-  const ExportScreen({super.key});
+  const ExportScreen({super.key, this.projectId});
+
+  final String? projectId;
 
   @override
   State<ExportScreen> createState() => _ExportScreenState();
@@ -18,9 +23,96 @@ class _ExportScreenState extends State<ExportScreen> {
   String _elapsedTime = '00:00';
   String _remainingTime = '00:00';
   String _renderingClip = '';
+  AppDatabase? _database;
+  ChronoProject? _activeProject;
+  final ChronoWaveFfi _timelineEngine = ChronoWaveFfi.instance;
+  TimelineEngineResult? _engineResult;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDatabase();
+  }
+
+  @override
+  void didUpdateWidget(covariant ExportScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.projectId != widget.projectId) {
+      _loadActiveProject();
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initDatabase() async {
+    final db = await AppDatabase.getInstance();
+    if (!mounted) return;
+
+    setState(() {
+      _database = db;
+    });
+    _loadActiveProject();
+  }
+
+  void _loadActiveProject() {
+    final db = _database;
+    final projectId = widget.projectId;
+    if (db == null || projectId == null) {
+      setState(() {
+        _activeProject = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _activeProject = db.getProject(projectId);
+    });
+  }
 
   void _startExport() async {
     if (_isExporting) return;
+    final project = _activeProject;
+
+    if (project == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFF111827),
+          content: Row(
+            children: [
+              const Icon(Icons.info_outline_rounded, color: Color(0xFF00D4FF)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Selecciona un proyecto antes de exportar.',
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final engineResult = _timelineEngine.processTimelineSnapshot(
+      project,
+      phase: 'export',
+    );
+    if (!engineResult.accepted) {
+      setState(() {
+        _engineResult = engineResult;
+        _renderingClip = engineResult.message;
+      });
+      return;
+    }
 
     setState(() {
       _isExporting = true;
@@ -28,6 +120,12 @@ class _ExportScreenState extends State<ExportScreen> {
       _elapsedTime = '00:00';
       _remainingTime = '00:25';
       _renderingClip = 'Inicializando tuberías GStreamer...';
+    });
+
+    setState(() {
+      _engineResult = engineResult;
+      _renderingClip =
+          '${engineResult.modeLabel}: snapshot validado para render.';
     });
 
     // Simular un proceso de renderizado reactivo y vistoso
@@ -39,18 +137,22 @@ class _ExportScreenState extends State<ExportScreen> {
         _exportProgress = i / 100.0;
         final elapsed = (i * 0.15).toInt();
         final remaining = ((100 - i) * 0.15).toInt();
-        
+
         _elapsedTime = '00:${elapsed.toString().padLeft(2, '0')}';
         _remainingTime = '00:${remaining.toString().padLeft(2, '0')}';
-        
+
         if (i < 20) {
-          _renderingClip = 'Cargando pistas de video (Intro_Drone.mp4)...';
+          _renderingClip =
+              '${engineResult.modeLabel}: cargando ${engineResult.trackCount} pistas del timeline...';
         } else if (i < 50) {
-          _renderingClip = 'Procesando FFI Snapshots en Rust Engine...';
+          _renderingClip =
+              'Procesando ${engineResult.clipCount} clips desde snapshot JSON...';
         } else if (i < 80) {
-          _renderingClip = 'Mezclando pistas de audio (Bg_Music.wav) a 48kHz...';
+          _renderingClip =
+              'Mezclando pistas de audio (Bg_Music.wav) a 48kHz...';
         } else {
-          _renderingClip = 'Codificando fotogramas finales mediante GPU H.264...';
+          _renderingClip =
+              'Codificando fotogramas finales mediante GPU H.264...';
         }
       });
     }
@@ -69,7 +171,10 @@ class _ExportScreenState extends State<ExportScreen> {
               const SizedBox(width: 12),
               Text(
                 'Video exportado en /ChronoWave/exports/',
-                style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold),
+                style: GoogleFonts.dmSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -87,6 +192,7 @@ class _ExportScreenState extends State<ExportScreen> {
         setState(() {
           _isExporting = false;
           _exportProgress = 0.0;
+          _engineResult = null;
         });
       }
     }
@@ -154,7 +260,9 @@ class _ExportScreenState extends State<ExportScreen> {
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(vertical: 8),
                         enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: const Color(0xFF1E293B)),
+                          borderSide: BorderSide(
+                            color: const Color(0xFF1E293B),
+                          ),
                         ),
                         focusedBorder: const UnderlineInputBorder(
                           borderSide: BorderSide(color: Color(0xFF00D4FF)),
@@ -183,9 +291,24 @@ class _ExportScreenState extends State<ExportScreen> {
                 childAspectRatio: 0.85,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  _buildResolutionCard('1080p', 'Full HD', 'Recomendado', const Color(0xFF00D4FF)),
-                  _buildResolutionCard('4K', 'Ultra HD', 'Ultra Premium', const Color(0xFF7B61FF)),
-                  _buildResolutionCard('720p', 'Standard HD', 'Espacio Bajo', const Color(0xFF64748B)),
+                  _buildResolutionCard(
+                    '1080p',
+                    'Full HD',
+                    'Recomendado',
+                    const Color(0xFF00D4FF),
+                  ),
+                  _buildResolutionCard(
+                    '4K',
+                    'Ultra HD',
+                    'Ultra Premium',
+                    const Color(0xFF7B61FF),
+                  ),
+                  _buildResolutionCard(
+                    '720p',
+                    'Standard HD',
+                    'Espacio Bajo',
+                    const Color(0xFF64748B),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -199,7 +322,11 @@ class _ExportScreenState extends State<ExportScreen> {
                       children: [
                         Text(
                           'Frame Rate',
-                          style: GoogleFonts.sora(color: const Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.sora(
+                            color: const Color(0xFF94A3B8),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         _buildSegmentedControl(
@@ -221,7 +348,11 @@ class _ExportScreenState extends State<ExportScreen> {
                       children: [
                         Text(
                           'Bitrate de Render',
-                          style: GoogleFonts.sora(color: const Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.sora(
+                            color: const Color(0xFF94A3B8),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         _buildSegmentedControl(
@@ -255,9 +386,12 @@ class _ExportScreenState extends State<ExportScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: _isExporting 
+                        colors: _isExporting
                             ? [const Color(0xFF1E293B), const Color(0xFF1E293B)]
-                            : [const Color(0xFF00D4FF), const Color(0xFF7B61FF)],
+                            : [
+                                const Color(0xFF00D4FF),
+                                const Color(0xFF7B61FF),
+                              ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -266,7 +400,9 @@ class _ExportScreenState extends State<ExportScreen> {
                           ? []
                           : [
                               BoxShadow(
-                                color: const Color(0xFF00D4FF).withOpacity(0.3),
+                                color: const Color(
+                                  0xFF00D4FF,
+                                ).withValues(alpha: 0.3),
                                 blurRadius: 15,
                                 spreadRadius: 1,
                                 offset: const Offset(0, 4),
@@ -275,9 +411,13 @@ class _ExportScreenState extends State<ExportScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        _isExporting ? 'EXPORTANDO PROYECTO...' : 'INICIAR EXPORTACIÓN',
+                        _isExporting
+                            ? 'EXPORTANDO PROYECTO...'
+                            : 'INICIAR EXPORTACIÓN',
                         style: GoogleFonts.sora(
-                          color: _isExporting ? const Color(0xFF64748B) : const Color(0xFF0A0E17),
+                          color: _isExporting
+                              ? const Color(0xFF64748B)
+                              : const Color(0xFF0A0E17),
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                           letterSpacing: 0.5,
@@ -295,9 +435,14 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  Widget _buildResolutionCard(String id, String label, String subtitle, Color accentColor) {
+  Widget _buildResolutionCard(
+    String id,
+    String label,
+    String subtitle,
+    Color accentColor,
+  ) {
     final isSelected = _selectedResolution == id.toLowerCase();
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -312,8 +457,13 @@ class _ExportScreenState extends State<ExportScreen> {
             color: isSelected ? accentColor : const Color(0xFF1E293B),
             width: isSelected ? 2.0 : 1.0,
           ),
-          boxShadow: isSelected 
-              ? [BoxShadow(color: accentColor.withOpacity(0.15), blurRadius: 8)]
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.15),
+                    blurRadius: 8,
+                  ),
+                ]
               : [],
         ),
         child: Stack(
@@ -393,15 +543,21 @@ class _ExportScreenState extends State<ExportScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF1E293B) : Colors.transparent,
+                  color: isSelected
+                      ? const Color(0xFF1E293B)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Text(
                     opt.toString(),
                     style: GoogleFonts.dmSans(
-                      color: isSelected ? const Color(0xFF00D4FF) : const Color(0xFF64748B),
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected
+                          ? const Color(0xFF00D4FF)
+                          : const Color(0xFF64748B),
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       fontSize: 12,
                     ),
                   ),
@@ -416,7 +572,7 @@ class _ExportScreenState extends State<ExportScreen> {
 
   Widget _buildActiveRenderPanel() {
     final progressPct = (_exportProgress * 100).toInt();
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -471,7 +627,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     borderRadius: BorderRadius.circular(3),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00D4FF).withOpacity(0.5),
+                        color: const Color(0xFF00D4FF).withValues(alpha: 0.5),
                         blurRadius: 6,
                         spreadRadius: 1,
                       ),
@@ -492,17 +648,34 @@ class _ExportScreenState extends State<ExportScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          if (_engineResult != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              '${_engineResult!.modeLabel} · ${_engineResult!.snapshotByteLength} bytes · codigo ${_engineResult!.code}',
+              style: GoogleFonts.dmSans(
+                color: const Color(0xFF7B61FF),
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Transcurrido: $_elapsedTime',
-                style: GoogleFonts.dmSans(color: const Color(0xFF64748B), fontSize: 11),
+                style: GoogleFonts.dmSans(
+                  color: const Color(0xFF64748B),
+                  fontSize: 11,
+                ),
               ),
               Text(
                 'Restante: $_remainingTime',
-                style: GoogleFonts.dmSans(color: const Color(0xFF64748B), fontSize: 11),
+                style: GoogleFonts.dmSans(
+                  color: const Color(0xFF64748B),
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -514,14 +687,17 @@ class _ExportScreenState extends State<ExportScreen> {
             children: [
               Text(
                 'Tamaño Estimado de Salida:',
-                style: GoogleFonts.dmSans(color: const Color(0xFF64748B), fontSize: 11),
+                style: GoogleFonts.dmSans(
+                  color: const Color(0xFF64748B),
+                  fontSize: 11,
+                ),
               ),
               Text(
-                _selectedResolution == '4k' 
-                    ? '745.8 MB' 
-                    : _selectedResolution == '720p' 
-                        ? '92.4 MB' 
-                        : '184.2 MB',
+                _selectedResolution == '4k'
+                    ? '745.8 MB'
+                    : _selectedResolution == '720p'
+                    ? '92.4 MB'
+                    : '184.2 MB',
                 style: GoogleFonts.dmSans(
                   color: const Color(0xFFFF6B9D),
                   fontSize: 11,

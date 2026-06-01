@@ -35,7 +35,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(width: 12),
               Text(
                 'Benchmark completado: GPU score 98.4 GFLOPS',
-                style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold),
+                style: GoogleFonts.dmSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -82,13 +85,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // Sección: General
               _buildSectionHeader('General'),
-              
+
               // Tarjeta: Cache
               _buildSettingCard(
                 icon: Icons.folder_open_rounded,
                 title: 'Directorio de Caché por Defecto',
                 subtitle: '/storage/emulated/0/ChronoWave/cache',
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF475569), size: 14),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Color(0xFF475569),
+                  size: 14,
+                ),
               ),
               const SizedBox(height: 12),
 
@@ -121,7 +128,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.graphic_eq_rounded, color: Color(0xFF7B61FF)),
+                        const Icon(
+                          Icons.graphic_eq_rounded,
+                          color: Color(0xFF7B61FF),
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -164,9 +174,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('128 (Ultra Bajo)', style: GoogleFonts.dmSans(color: const Color(0xFF475569), fontSize: 10)),
-                        Text('${_audioBufferSize.toInt()} samples', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                        Text('1024 (Seguro)', style: GoogleFonts.dmSans(color: const Color(0xFF475569), fontSize: 10)),
+                        Text(
+                          '128 (Ultra Bajo)',
+                          style: GoogleFonts.dmSans(
+                            color: const Color(0xFF475569),
+                            fontSize: 10,
+                          ),
+                        ),
+                        Text(
+                          '${_audioBufferSize.toInt()} samples',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '1024 (Seguro)',
+                          style: GoogleFonts.dmSans(
+                            color: const Color(0xFF475569),
+                            fontSize: 10,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -176,13 +205,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // Sección: Diagnósticos
               _buildSectionHeader('Diagnósticos del Motor'),
-              
+
               // Estado de Rust
               _buildTelemetryCard(
                 title: 'Rust FFI Bridge',
                 status: 'CONECTADO (v0.1.0-alpha)',
                 statusColor: const Color(0xFF00D4FF),
-                details: 'Compilación estática x86_64-pc-windows-msvc integrada exitosamente.',
+                details:
+                    'Compilación estática x86_64-pc-windows-msvc integrada exitosamente.',
                 icon: Icons.code_rounded,
               ),
               const SizedBox(height: 12),
@@ -192,7 +222,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'GStreamer Pipeline Core',
                 status: 'INICIALIZADO (v1.22.5)',
                 statusColor: const Color(0xFF7B61FF),
-                details: 'GStreamer Elements (glimagesink, playbin3, ges) listos para preview y render.',
+                details:
+                    'GStreamer Elements (glimagesink, playbin3, ges) listos para preview y render.',
                 icon: Icons.video_settings_rounded,
               ),
               const SizedBox(height: 12),
@@ -207,7 +238,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.developer_board_rounded, color: Color(0xFFFF6B9D)),
+                    const Icon(
+                      Icons.developer_board_rounded,
+                      color: Color(0xFFFF6B9D),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -222,7 +256,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                           Text(
-                            _hardwareAccel ? 'Decodificación / Encodificación acelerada activa' : 'Usando CPU (Lento)',
+                            _hardwareAccel
+                                ? 'Decodificación / Encodificación acelerada activa'
+                                : 'Usando CPU (Lento)',
                             style: GoogleFonts.dmSans(
                               color: const Color(0xFFFF6B9D),
                               fontSize: 12,
@@ -233,8 +269,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     Switch(
                       value: _hardwareAccel,
-                      activeColor: const Color(0xFFFF6B9D),
-                      activeTrackColor: const Color(0xFFFF6B9D).withOpacity(0.15),
+                      activeThumbColor: const Color(0xFFFF6B9D),
+                      activeTrackColor: const Color(
+                        0xFFFF6B9D,
+                      ).withValues(alpha: 0.15),
                       inactiveThumbColor: const Color(0xFF475569),
                       inactiveTrackColor: const Color(0xFF1E293B),
                       onChanged: (val) {
@@ -255,16 +293,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: _isBenchmarking ? null : _runBenchmark,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF7B61FF),
-                    side: const BorderSide(color: Color(0xFF7B61FF), width: 1.5),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    side: const BorderSide(
+                      color: Color(0xFF7B61FF),
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  icon: _isBenchmarking 
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Color(0xFF7B61FF), strokeWidth: 2))
+                  icon: _isBenchmarking
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF7B61FF),
+                            strokeWidth: 2,
+                          ),
+                        )
                       : const Icon(Icons.speed_rounded),
                   label: Text(
-                    _isBenchmarking ? 'Ejecutando Test...' : 'Ejecutar Autodiagnóstico',
-                    style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, fontSize: 14),
+                    _isBenchmarking
+                        ? 'Ejecutando Test...'
+                        : 'Ejecutar Autodiagnóstico',
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ),
@@ -399,7 +454,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.12),
+                  color: statusColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

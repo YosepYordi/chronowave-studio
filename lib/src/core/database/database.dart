@@ -56,13 +56,14 @@ class AppDatabase {
   }
 
   void _initSchema() {
-    if (_db == null) return;
-    
+    final db = _db;
+    if (db == null) return;
+
     // Habilitar claves foráneas
-    _db!.execute('PRAGMA foreign_keys = ON;');
+    db.execute('PRAGMA foreign_keys = ON;');
 
     // Crear tablas del Plan Maestro
-    _db!.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS projects (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -75,7 +76,7 @@ class AppDatabase {
       );
     ''');
 
-    _db!.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS media_assets (
         id TEXT PRIMARY KEY,
         project_id TEXT NOT NULL,
@@ -94,7 +95,7 @@ class AppDatabase {
       );
     ''');
 
-    _db!.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS tracks (
         id TEXT PRIMARY KEY,
         project_id TEXT NOT NULL,
@@ -109,7 +110,7 @@ class AppDatabase {
       );
     ''');
 
-    _db!.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS clips (
         id TEXT PRIMARY KEY,
         track_id TEXT NOT NULL,
@@ -199,24 +200,28 @@ class AppDatabase {
       return List.from(_mockProjects);
     }
 
-    final ResultSet results = _db!.select('SELECT * FROM projects ORDER BY updated_at DESC');
+    final ResultSet results = _db!.select(
+      'SELECT * FROM projects ORDER BY updated_at DESC',
+    );
     final projects = <ChronoProject>[];
 
     for (final row in results) {
       final projectId = row['id'] as String;
-      projects.add(ChronoProject(
-        id: projectId,
-        name: row['name'] as String,
-        createdAt: DateTime.parse(row['created_at'] as String),
-        updatedAt: DateTime.parse(row['updated_at'] as String),
-        schemaVersion: row['schema_version'] as int,
-        durationMs: row['duration_ms'] as int,
-        thumbnailPath: row['thumbnail_path'] as String?,
-        syncState: ProjectSyncState.values[row['sync_state'] as int],
-        assets: getMediaAssets(projectId),
-        tracks: getTracks(projectId),
-        clips: getClipsForProject(projectId),
-      ));
+      projects.add(
+        ChronoProject(
+          id: projectId,
+          name: row['name'] as String,
+          createdAt: DateTime.parse(row['created_at'] as String),
+          updatedAt: DateTime.parse(row['updated_at'] as String),
+          schemaVersion: row['schema_version'] as int,
+          durationMs: row['duration_ms'] as int,
+          thumbnailPath: row['thumbnail_path'] as String?,
+          syncState: ProjectSyncState.values[row['sync_state'] as int],
+          assets: getMediaAssets(projectId),
+          tracks: getTracks(projectId),
+          clips: getClipsForProject(projectId),
+        ),
+      );
     }
     return projects;
   }
@@ -231,7 +236,10 @@ class AppDatabase {
       }
     }
 
-    final ResultSet results = _db!.select('SELECT * FROM projects WHERE id = ?', [id]);
+    final ResultSet results = _db!.select(
+      'SELECT * FROM projects WHERE id = ?',
+      [id],
+    );
     if (results.isEmpty) return null;
 
     final row = results.first;
@@ -280,24 +288,29 @@ class AppDatabase {
   List<MediaAsset> getMediaAssets(String projectId) {
     if (isTesting) return const [];
 
-    final ResultSet results = _db!.select('SELECT * FROM media_assets WHERE project_id = ?', [projectId]);
+    final ResultSet results = _db!.select(
+      'SELECT * FROM media_assets WHERE project_id = ?',
+      [projectId],
+    );
     final assets = <MediaAsset>[];
     for (final row in results) {
-      assets.add(MediaAsset(
-        id: row['id'] as String,
-        projectId: projectId,
-        type: MediaAssetType.values[row['type'] as int],
-        originalUri: row['original_uri'] as String,
-        localPath: row['local_path'] as String,
-        displayName: row['display_name'] as String,
-        durationMs: row['duration_ms'] as int,
-        width: row['width'] as int?,
-        height: row['height'] as int?,
-        sampleRate: row['sample_rate'] as int?,
-        channels: row['channels'] as int?,
-        createdAt: DateTime.parse(row['created_at'] as String),
-        checksum: row['checksum'] as String?,
-      ));
+      assets.add(
+        MediaAsset(
+          id: row['id'] as String,
+          projectId: projectId,
+          type: MediaAssetType.values[row['type'] as int],
+          originalUri: row['original_uri'] as String,
+          localPath: row['local_path'] as String,
+          displayName: row['display_name'] as String,
+          durationMs: row['duration_ms'] as int,
+          width: row['width'] as int?,
+          height: row['height'] as int?,
+          sampleRate: row['sample_rate'] as int?,
+          channels: row['channels'] as int?,
+          createdAt: DateTime.parse(row['created_at'] as String),
+          checksum: row['checksum'] as String?,
+        ),
+      );
     }
     return assets;
   }
@@ -333,29 +346,52 @@ class AppDatabase {
           return p.tracks;
         }
       } catch (_) {}
-      
+
       // Fallback básico para pruebas de UI del editor
       return [
-        ProjectTrack(id: 'track_vid_$projectId', projectId: projectId, type: TrackType.video, name: 'Video 1', orderIndex: 0),
-        ProjectTrack(id: 'track_aud_$projectId', projectId: projectId, type: TrackType.audio, name: 'Audio 1', orderIndex: 1),
-        ProjectTrack(id: 'track_txt_$projectId', projectId: projectId, type: TrackType.text, name: 'Text 1', orderIndex: 2),
+        ProjectTrack(
+          id: 'track_vid_$projectId',
+          projectId: projectId,
+          type: TrackType.video,
+          name: 'Video 1',
+          orderIndex: 0,
+        ),
+        ProjectTrack(
+          id: 'track_aud_$projectId',
+          projectId: projectId,
+          type: TrackType.audio,
+          name: 'Audio 1',
+          orderIndex: 1,
+        ),
+        ProjectTrack(
+          id: 'track_txt_$projectId',
+          projectId: projectId,
+          type: TrackType.text,
+          name: 'Text 1',
+          orderIndex: 2,
+        ),
       ];
     }
 
-    final ResultSet results = _db!.select('SELECT * FROM tracks WHERE project_id = ? ORDER BY order_index ASC', [projectId]);
+    final ResultSet results = _db!.select(
+      'SELECT * FROM tracks WHERE project_id = ? ORDER BY order_index ASC',
+      [projectId],
+    );
     final tracks = <ProjectTrack>[];
     for (final row in results) {
-      tracks.add(ProjectTrack(
-        id: row['id'] as String,
-        projectId: projectId,
-        type: TrackType.values[row['type'] as int],
-        name: row['name'] as String,
-        orderIndex: row['order_index'] as int,
-        muted: row['muted'] == 1,
-        locked: row['locked'] == 1,
-        visible: row['visible'] == 1,
-        volume: row['volume'] as double,
-      ));
+      tracks.add(
+        ProjectTrack(
+          id: row['id'] as String,
+          projectId: projectId,
+          type: TrackType.values[row['type'] as int],
+          name: row['name'] as String,
+          orderIndex: row['order_index'] as int,
+          muted: row['muted'] == 1,
+          locked: row['locked'] == 1,
+          visible: row['visible'] == 1,
+          volume: row['volume'] as double,
+        ),
+      );
     }
     return tracks;
   }
@@ -364,13 +400,17 @@ class AppDatabase {
   void saveClip(TimelineClip clip) {
     if (isTesting) {
       // Actualizar el clip en el mock project
-      final projIdx = _mockProjects.indexWhere((p) => p.tracks.any((t) => t.id == clip.trackId) || p.id == clip.id.split('_').last);
+      final projIdx = _mockProjects.indexWhere(
+        (p) =>
+            p.tracks.any((t) => t.id == clip.trackId) ||
+            p.id == clip.id.split('_').last,
+      );
       if (projIdx != -1) {
         final p = _mockProjects[projIdx];
         final List<TimelineClip> updatedClips = List.from(p.clips);
         updatedClips.removeWhere((c) => c.id == clip.id);
         updatedClips.add(clip);
-        
+
         _mockProjects[projIdx] = ChronoProject(
           id: p.id,
           name: p.name,
@@ -418,7 +458,8 @@ class AppDatabase {
       for (int i = 0; i < _mockProjects.length; i++) {
         final p = _mockProjects[i];
         if (p.clips.any((c) => c.id == id)) {
-          final List<TimelineClip> updated = List.from(p.clips)..removeWhere((c) => c.id == id);
+          final List<TimelineClip> updated = List.from(p.clips)
+            ..removeWhere((c) => c.id == id);
           _mockProjects[i] = ChronoProject(
             id: p.id,
             name: p.name,
@@ -455,29 +496,34 @@ class AppDatabase {
       }
     }
 
-    final ResultSet results = _db!.select('''
+    final ResultSet results = _db!.select(
+      '''
       SELECT clips.* FROM clips 
       JOIN tracks ON clips.track_id = tracks.id
       WHERE tracks.project_id = ?
-    ''', [projectId]);
-    
+    ''',
+      [projectId],
+    );
+
     final clips = <TimelineClip>[];
     for (final row in results) {
-      clips.add(TimelineClip(
-        id: row['id'] as String,
-        trackId: row['track_id'] as String,
-        assetId: row['asset_id'] as String?,
-        startMs: row['start_ms'] as int,
-        durationMs: row['duration_ms'] as int,
-        sourceInMs: row['source_in_ms'] as int,
-        sourceOutMs: row['source_out_ms'] as int,
-        zIndex: row['z_index'] as int,
-        volume: row['volume'] as double,
-        fadeInMs: row['fade_in_ms'] as int,
-        fadeOutMs: row['fade_out_ms'] as int,
-        effectConfigJson: row['effect_config_json'] as String?,
-        textConfigJson: row['text_config_json'] as String?,
-      ));
+      clips.add(
+        TimelineClip(
+          id: row['id'] as String,
+          trackId: row['track_id'] as String,
+          assetId: row['asset_id'] as String?,
+          startMs: row['start_ms'] as int,
+          durationMs: row['duration_ms'] as int,
+          sourceInMs: row['source_in_ms'] as int,
+          sourceOutMs: row['source_out_ms'] as int,
+          zIndex: row['z_index'] as int,
+          volume: row['volume'] as double,
+          fadeInMs: row['fade_in_ms'] as int,
+          fadeOutMs: row['fade_out_ms'] as int,
+          effectConfigJson: row['effect_config_json'] as String?,
+          textConfigJson: row['text_config_json'] as String?,
+        ),
+      );
     }
     return clips;
   }

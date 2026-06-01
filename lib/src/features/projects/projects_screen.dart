@@ -58,11 +58,13 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
   List<ChronoProject> get _filteredProjects {
     var filtered = _projects;
-    
+
     // Filtro por texto
     if (_searchQuery.isNotEmpty) {
       filtered = filtered
-          .where((p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+          .where(
+            (p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
           .toList();
     }
 
@@ -89,7 +91,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
     final created = await showDialog<bool>(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.85),
+      barrierColor: Colors.black.withValues(alpha: 0.85),
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF111827),
@@ -115,7 +117,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                 labelText: 'Nombre del Proyecto',
                 labelStyle: GoogleFonts.dmSans(color: const Color(0xFF94A3B8)),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: const Color(0xFF7B61FF).withOpacity(0.5)),
+                  borderSide: BorderSide(
+                    color: const Color(0xFF7B61FF).withValues(alpha: 0.5),
+                  ),
                 ),
                 focusedBorder: const UnderlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFF00D4FF)),
@@ -141,7 +145,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00D4FF),
                 foregroundColor: const Color(0xFF0A0E17),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
@@ -161,7 +167,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     if (created == true) {
       final id = 'proj_${DateTime.now().millisecondsSinceEpoch}';
       final name = nameController.text.trim();
-      
+
       // Crear proyecto con pistas base
       final newProj = ChronoProject(
         id: id,
@@ -198,7 +204,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       );
 
       _database!.saveProject(newProj);
-      
+
       // Abrir editor
       widget.onProjectSelected(id);
     }
@@ -207,7 +213,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   void _deleteProject(String id) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.85),
+      barrierColor: Colors.black.withValues(alpha: 0.85),
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF111827),
         shape: RoundedRectangleBorder(
@@ -216,7 +222,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         ),
         title: Text(
           'Eliminar Proyecto',
-          style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold),
+          style: GoogleFonts.sora(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Text(
           '¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.',
@@ -225,19 +234,27 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar', style: GoogleFonts.dmSans(color: const Color(0xFF94A3B8))),
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.dmSans(color: const Color(0xFF94A3B8)),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF6B9D),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () {
               _database?.deleteProject(id);
               Navigator.pop(context);
             },
-            child: Text('Eliminar', style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+            child: Text(
+              'Eliminar',
+              style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -298,7 +315,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF00D4FF).withOpacity(0.3),
+                            color: const Color(
+                              0xFF00D4FF,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 10,
                             spreadRadius: 1,
                           ),
@@ -333,9 +352,14 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                     });
                   },
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Color(0xFF94A3B8),
+                    ),
                     hintText: 'Buscar proyectos...',
-                    hintStyle: GoogleFonts.dmSans(color: const Color(0xFF475569)),
+                    hintStyle: GoogleFonts.dmSans(
+                      color: const Color(0xFF475569),
+                    ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -347,7 +371,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: ['All', 'Recientes', 'Favoritos', 'Templates'].map((filter) {
+                  children: ['All', 'Recientes', 'Favoritos', 'Templates'].map((
+                    filter,
+                  ) {
                     final isActive = _activeFilter == filter;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
@@ -361,16 +387,24 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                             });
                           }
                         },
-                        selectedColor: const Color(0xFF00D4FF).withOpacity(0.15),
+                        selectedColor: const Color(
+                          0xFF00D4FF,
+                        ).withValues(alpha: 0.15),
                         backgroundColor: const Color(0xFF111827),
                         labelStyle: GoogleFonts.dmSans(
-                          color: isActive ? const Color(0xFF00D4FF) : const Color(0xFF94A3B8),
-                          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                          color: isActive
+                              ? const Color(0xFF00D4FF)
+                              : const Color(0xFF94A3B8),
+                          fontWeight: isActive
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: isActive ? const Color(0xFF00D4FF) : const Color(0xFF1E293B),
+                            color: isActive
+                                ? const Color(0xFF00D4FF)
+                                : const Color(0xFF1E293B),
                             width: isActive ? 1.5 : 1.0,
                           ),
                         ),
@@ -384,17 +418,21 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               // Lista de Proyectos o Estado Vacío
               Expanded(
                 child: _isLoading
-                    ? const Center(child: CircularProgressIndicator(color: Color(0xFF00D4FF)))
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF00D4FF),
+                        ),
+                      )
                     : filtered.isEmpty
-                        ? _buildEmptyState()
-                        : ListView.builder(
-                            itemCount: filtered.length,
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final proj = filtered[index];
-                              return _buildProjectCard(proj);
-                            },
-                          ),
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        itemCount: filtered.length,
+                        physics: const BouncingScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final proj = filtered[index];
+                          return _buildProjectCard(proj);
+                        },
+                      ),
               ),
 
               // Indicador de Almacenamiento
@@ -414,80 +452,86 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-            height: 100,
-            width: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF00D4FF).withOpacity(0.1),
-                  const Color(0xFF7B61FF).withOpacity(0.1)
-                ],
+              height: 100,
+              width: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF00D4FF).withValues(alpha: 0.1),
+                    const Color(0xFF7B61FF).withValues(alpha: 0.1),
+                  ],
+                ),
+                border: Border.all(
+                  color: const Color(0xFF7B61FF).withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
               ),
-              border: Border.all(color: const Color(0xFF7B61FF).withOpacity(0.3), width: 1.5),
-            ),
-            child: const Icon(
-              Icons.video_library_outlined,
-              size: 40,
-              color: Color(0xFF00D4FF),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Sin Proyectos Aún',
-            style: GoogleFonts.sora(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Text(
-              'Crea tu primer espacio de edición multitrack tocando el botón de arriba.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.dmSans(
-                color: const Color(0xFF64748B),
-                fontSize: 14,
+              child: const Icon(
+                Icons.video_library_outlined,
+                size: 40,
+                color: Color(0xFF00D4FF),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: _createNewProject,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF111827),
-              foregroundColor: const Color(0xFF00D4FF),
-              side: const BorderSide(color: Color(0xFF00D4FF), width: 1.0),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            const SizedBox(height: 20),
+            Text(
+              'Sin Proyectos Aún',
+              style: GoogleFonts.sora(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            icon: const Icon(Icons.add, size: 20),
-            label: Text(
-              'Crear Espacio',
-              style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Text(
+                'Crea tu primer espacio de edición multitrack tocando el botón de arriba.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.dmSans(
+                  color: const Color(0xFF64748B),
+                  fontSize: 14,
+                ),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _createNewProject,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF111827),
+                foregroundColor: const Color(0xFF00D4FF),
+                side: const BorderSide(color: Color(0xFF00D4FF), width: 1.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+              ),
+              icon: const Icon(Icons.add, size: 20),
+              label: Text(
+                'Crear Espacio',
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
       ),
-     ),
     );
   }
 
   Widget _buildProjectCard(ChronoProject proj) {
     final durationSec = (proj.durationMs / 1000).toStringAsFixed(1);
-    final dateStr = '${proj.updatedAt.day}/${proj.updatedAt.month}/${proj.updatedAt.year}';
+    final dateStr =
+        '${proj.updatedAt.day}/${proj.updatedAt.month}/${proj.updatedAt.year}';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: const Color(0xFF111827),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF1E293B),
-          width: 1.0,
-        ),
+        border: Border.all(color: const Color(0xFF1E293B), width: 1.0),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -505,7 +549,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   gradient: LinearGradient(
                     colors: [
                       const Color(0xFF7B61FF),
-                      const Color(0xFF00D4FF).withOpacity(0.8),
+                      const Color(0xFF00D4FF).withValues(alpha: 0.8),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -516,7 +560,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                     Center(
                       child: Icon(
                         Icons.play_circle_fill_rounded,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         size: 28,
                       ),
                     ),
@@ -524,9 +568,12 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       bottom: 4,
                       right: 4,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.75),
+                          color: Colors.black.withValues(alpha: 0.75),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -563,7 +610,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFF1E293B),
                             borderRadius: BorderRadius.circular(4),
@@ -620,7 +670,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
                   child: Text(
                     name,
                     maxLines: 1,
@@ -634,7 +687,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                 ),
                 const Divider(color: Color(0xFF1E293B)),
                 ListTile(
-                  leading: const Icon(Icons.edit_outlined, color: Color(0xFF00D4FF)),
+                  leading: const Icon(
+                    Icons.edit_outlined,
+                    color: Color(0xFF00D4FF),
+                  ),
                   title: Text(
                     'Abrir en Editor',
                     style: GoogleFonts.dmSans(color: Colors.white),
@@ -645,7 +701,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.delete_outline_rounded, color: Color(0xFFFF6B9D)),
+                  leading: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: Color(0xFFFF6B9D),
+                  ),
                   title: Text(
                     'Eliminar',
                     style: GoogleFonts.dmSans(color: Colors.white),
