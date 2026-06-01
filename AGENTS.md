@@ -23,9 +23,11 @@ Flujo recomendado:
 
 La IA no debe usar comandos que reescriban historia o descarten trabajo, como `reset --hard`, `checkout -- .`, `clean -fd`, `push --force` o equivalentes, salvo que el humano lo pida explicitamente y entienda el riesgo.
 
-Al final de una tarea, despues de crear el reporte y validar los cambios, la IA debe preguntar al humano si quiere enviar los cambios a GitHub. No debe hacer `push` automatico sin autorizacion.
+Al final de una tarea, despues de crear el reporte y validar los cambios, la IA debe preguntar al humano si quiere enviar los cambios de código a GitHub. No debe hacer `push` automatico de código de producción o desarrollo sin autorizacion.
 
-Si el humano aprueba enviar a GitHub, la IA debe confirmar o proponer:
+**Excepción obligatoria para documentación:** Toda modificación en la documentación (todo lo contenido dentro de la carpeta `docs/`, incluyendo reportes de IA e índices) se debe subir (push) obligatoriamente a la rama principal `main` en `origin` de forma automática tan pronto como finalice la tarea, sin requerir consulta previa.
+
+Si el humano aprueba enviar los cambios de código a GitHub, la IA debe confirmar o proponer:
 
 - Rama destino.
 - Archivos a incluir.
