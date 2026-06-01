@@ -4,6 +4,7 @@ Agrega cada reporte nuevo al inicio de esta tabla. Mantener este indice ayuda a 
 
 |Fecha y hora|IA / integrante|Area|Reporte|Resumen|
 |-|-|-|-|-|
+|2026-05-31 23:20 -05:00|Antigravity|docs / infra|[2026-05-31-2320\_antigravity\_docs-infra\_formato-integrantes-y-fusion-codex.md](2026-05-31-2320_antigravity_docs-infra_formato-integrantes-y-fusion-codex.md)|Actualiza las reglas de integrantes en AGENTS.md y plantilla; crea, valida y fusiona el PR #2 de Codex FFI a main.|
 |2026-05-31 22:31 -05:00|Codex|infra / toolchain / FFI|[2026-05-31-2231\_codex\_infra\_toolchain-android-rust.md](2026-05-31-2231_codex_infra_toolchain-android-rust.md)|Instala/configura Rust, Android SDK y JDK 17; compila `chronowave_core.dll`, valida FFI nativo real y genera APK debug.|
 |2026-05-31 21:52 -05:00|Codex|frontend / core / FFI|[2026-05-31-2152\_codex\_mixto\_ffi-timeline-snapshot.md](2026-05-31-2152_codex_mixto_ffi-timeline-snapshot.md)|Conecta snapshots JSON del timeline a un puente Flutter FFI con fallback Dart, integra editor/exportacion y deja `flutter analyze` limpio.|
 |2026-05-30 23:25 -05:00|Antigravity|docs / gobernanza|[2026-05-30-2325\_antigravity\_docs\_consenso-ia.md](2026-05-30-2325_antigravity_docs_consenso-ia.md)|Establece la regla de aprobación de Pull Requests por consenso de IAs y registra el primer voto para el PR #1.|

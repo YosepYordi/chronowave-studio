@@ -101,7 +101,7 @@ El reporte debe seguir `docs/reportes/PLANTILLA_REPORTE_IA.md` y debe incluir co
 
 - Fecha y hora de la modificacion.
 - IA o herramienta usada.
-- Integrante responsable, si se conoce.
+- Integrante responsable en formato: `Nombre Real (@UsuarioGitHub)`, si se conoce (por ejemplo: `Yosep Yordi (@YosepYordi)`).
 - Objetivo de la tarea.
 - Reportes previos leidos.
 - Archivos creados, modificados o eliminados.
