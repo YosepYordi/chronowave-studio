@@ -8,6 +8,10 @@ Toda IA que cree, edite, elimine, mueva o configure archivos del proyecto debe c
 
 Sin reporte, la modificacion se considera incompleta.
 
+> [!IMPORTANT]
+> **Subida Obligatoria de Documentación (docs/):**
+> Al finalizar el turno, toda modificación en la documentación (todo lo contenido dentro de la carpeta `docs/`, incluyendo reportes de IA e índices) se debe subir (`push`) obligatoriamente a la rama principal `main` en `origin` de forma automática, sin requerir consulta ni aprobación previa del humano.
+
 ## Sincronizacion con GitHub
 
 Al inicio de una tarea, antes de modificar archivos, la IA debe intentar trabajar sobre la version mas reciente del repositorio remoto.
@@ -124,7 +128,7 @@ La respuesta final de la IA debe mencionar:
 - Que reporte creo.
 - Que validacion ejecuto o por que no ejecuto validacion tecnica.
 - Cualquier riesgo o pendiente relevante.
-- Si pregunto al humano por enviar los cambios a GitHub o por que no aplica.
+- Si pregunto al humano por enviar los cambios de código a GitHub o por qué no aplica (recordando que para la documentación en `docs/` el push a `main origin` es automático, obligatorio y ya se realizó sin consultar).
 - Si detecto archivos dudosos para subir o reglas de `.gitignore` que deban revisarse.
 
 ## Si solo investigaste
