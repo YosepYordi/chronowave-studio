@@ -67,9 +67,14 @@ class _TimelineWidgetState extends State<TimelineWidget> {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               controller: _scrollController,
-              physics: _isDraggingPlayhead ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
+              physics: _isDraggingPlayhead
+                  ? const NeverScrollableScrollPhysics()
+                  : const BouncingScrollPhysics(),
               child: SizedBox(
-                width: math.max(timelineWidth + 200, MediaQuery.of(context).size.width), // Ancho dinámico + margen final
+                width: math.max(
+                  timelineWidth + 200,
+                  MediaQuery.of(context).size.width,
+                ), // Ancho dinámico + margen final
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -121,7 +126,11 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         children: [
           Row(
             children: [
-              const Icon(Icons.zoom_in_rounded, color: Color(0xFF64748B), size: 16),
+              const Icon(
+                Icons.zoom_in_rounded,
+                color: Color(0xFF64748B),
+                size: 16,
+              ),
               const SizedBox(width: 8),
               Text(
                 'ZOOM TIMELINE',
@@ -169,13 +178,17 @@ class _TimelineWidgetState extends State<TimelineWidget> {
       onHorizontalDragStart: (_) => setState(() => _isDraggingPlayhead = true),
       onHorizontalDragUpdate: (details) {
         final double relativeX = details.localPosition.dx;
-        final int targetMs = _xToMs(relativeX).clamp(0, widget.projectDurationMs);
+        final int targetMs = _xToMs(
+          relativeX,
+        ).clamp(0, widget.projectDurationMs);
         widget.onSeek(targetMs);
       },
       onHorizontalDragEnd: (_) => setState(() => _isDraggingPlayhead = false),
       onTapDown: (details) {
         final double relativeX = details.localPosition.dx;
-        final int targetMs = _xToMs(relativeX).clamp(0, widget.projectDurationMs);
+        final int targetMs = _xToMs(
+          relativeX,
+        ).clamp(0, widget.projectDurationMs);
         widget.onSeek(targetMs);
       },
       child: Container(
@@ -232,7 +245,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
             bottom: 0,
             child: Container(
               width: 1,
-              color: const Color(0xFF111827).withOpacity(0.4),
+              color: const Color(0xFF111827).withValues(alpha: 0.4),
             ),
           );
         }),
@@ -240,7 +253,9 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         // Filas de pistas reales
         Column(
           children: widget.tracks.map((track) {
-            final trackClips = widget.clips.where((c) => c.trackId == track.id).toList();
+            final trackClips = widget.clips
+                .where((c) => c.trackId == track.id)
+                .toList();
             return _buildTrackRow(track, trackClips, timelineWidth);
           }).toList(),
         ),
@@ -248,7 +263,11 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     );
   }
 
-  Widget _buildTrackRow(ProjectTrack track, List<TimelineClip> trackClips, double timelineWidth) {
+  Widget _buildTrackRow(
+    ProjectTrack track,
+    List<TimelineClip> trackClips,
+    double timelineWidth,
+  ) {
     double rowHeight = 70.0;
     Color trackAccent = Colors.grey;
     IconData trackIcon = Icons.movie_creation_outlined;
@@ -280,13 +299,17 @@ class _TimelineWidgetState extends State<TimelineWidget> {
             width: 75,
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF0A0E17).withOpacity(0.8),
+              color: const Color(0xFF0A0E17).withValues(alpha: 0.8),
               border: const Border(right: BorderSide(color: Color(0xFF1E293B))),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(trackIcon, color: trackAccent.withOpacity(0.8), size: 18),
+                Icon(
+                  trackIcon,
+                  color: trackAccent.withValues(alpha: 0.8),
+                  size: 18,
+                ),
                 const SizedBox(height: 4),
                 Text(
                   track.name.split(' ').last, // Pista 1, Audio 1, etc.
@@ -307,7 +330,12 @@ class _TimelineWidgetState extends State<TimelineWidget> {
           Expanded(
             child: Stack(
               clipBehavior: Clip.none,
-              children: trackClips.map((clip) => _buildClipWidget(clip, trackAccent, rowHeight - 16)).toList(),
+              children: trackClips
+                  .map(
+                    (clip) =>
+                        _buildClipWidget(clip, trackAccent, rowHeight - 16),
+                  )
+                  .toList(),
             ),
           ),
         ],
@@ -315,7 +343,11 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     );
   }
 
-  Widget _buildClipWidget(TimelineClip clip, Color accentColor, double clipHeight) {
+  Widget _buildClipWidget(
+    TimelineClip clip,
+    Color accentColor,
+    double clipHeight,
+  ) {
     final double left = _msToX(clip.startMs);
     final double width = _msToX(clip.durationMs);
     final isSelected = widget.selectedClipId == clip.id;
@@ -324,7 +356,9 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     Widget bodyContent = const SizedBox.shrink();
 
     if (accentColor == const Color(0xFF00D4FF)) {
-      clipName = clip.id.contains('proj') ? 'Clip_Video.mp4' : 'Intro_Drone.mp4';
+      clipName = clip.id.contains('proj')
+          ? 'Clip_Video.mp4'
+          : 'Intro_Drone.mp4';
       // Simular miniaturas internas para video
       bodyContent = Row(
         children: List.generate((width / 40).floor().clamp(1, 8), (index) {
@@ -336,7 +370,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF1E293B),
-                    accentColor.withOpacity(0.15),
+                    accentColor.withValues(alpha: 0.15),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -362,7 +396,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         child: Text(
           '"TEXT OVERLAY"',
           style: GoogleFonts.dmSans(
-            color: accentColor.withOpacity(0.9),
+            color: accentColor.withValues(alpha: 0.9),
             fontSize: 9,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.0,
@@ -382,19 +416,21 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         },
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF111827).withOpacity(0.95),
+            color: const Color(0xFF111827).withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? const Color(0xFF00D4FF) : accentColor.withOpacity(0.35),
+              color: isSelected
+                  ? const Color(0xFF00D4FF)
+                  : accentColor.withValues(alpha: 0.35),
               width: isSelected ? 2.2 : 1.0,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF00D4FF).withOpacity(0.35),
+                      color: const Color(0xFF00D4FF).withValues(alpha: 0.35),
                       blurRadius: 8,
                       spreadRadius: 1,
-                    )
+                    ),
                   ]
                 : [],
           ),
@@ -410,7 +446,9 @@ class _TimelineWidgetState extends State<TimelineWidget> {
                 child: Text(
                   clipName,
                   style: GoogleFonts.sora(
-                    color: isSelected ? const Color(0xFF00D4FF) : Colors.white.withOpacity(0.85),
+                    color: isSelected
+                        ? const Color(0xFF00D4FF)
+                        : Colors.white.withValues(alpha: 0.85),
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                   ),
@@ -430,7 +468,10 @@ class _TimelineWidgetState extends State<TimelineWidget> {
                     onHorizontalDragUpdate: (details) {
                       final double deltaX = details.delta.dx;
                       final int deltaMs = _xToMs(deltaX);
-                      final int newStart = (clip.startMs + deltaMs).clamp(0, clip.endMs - 1000);
+                      final int newStart = (clip.startMs + deltaMs).clamp(
+                        0,
+                        clip.endMs - 1000,
+                      );
                       final int newDuration = clip.endMs - newStart;
                       widget.onClipTrim(clip.id, newStart, newDuration);
                     },
@@ -464,7 +505,10 @@ class _TimelineWidgetState extends State<TimelineWidget> {
                     onHorizontalDragUpdate: (details) {
                       final double deltaX = details.delta.dx;
                       final int deltaMs = _xToMs(deltaX);
-                      final int newDuration = (clip.durationMs + deltaMs).clamp(1000, widget.projectDurationMs - clip.startMs);
+                      final int newDuration = (clip.durationMs + deltaMs).clamp(
+                        1000,
+                        widget.projectDurationMs - clip.startMs,
+                      );
                       widget.onClipTrim(clip.id, clip.startMs, newDuration);
                     },
                     child: Container(
@@ -505,7 +549,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
             color: const Color(0xFF00D4FF),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00D4FF).withOpacity(0.7),
+                color: const Color(0xFF00D4FF).withValues(alpha: 0.7),
                 blurRadius: 6,
                 spreadRadius: 1,
               ),
@@ -530,7 +574,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
               color: const Color(0xFF00D4FF),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF00D4FF).withOpacity(0.3),
+                  color: const Color(0xFF00D4FF).withValues(alpha: 0.3),
                   blurRadius: 3,
                 ),
               ],
@@ -551,7 +595,7 @@ class WaveformPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.7)
+      ..color = color.withValues(alpha: 0.7)
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round;
 

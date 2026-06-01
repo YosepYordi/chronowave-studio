@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onBack: _clearSelectedProject,
             )
           : _buildNoProjectSelectedState(),
-      const ExportScreen(),
+      ExportScreen(projectId: _selectedProjectId),
       const SettingsScreen(),
     ];
 
@@ -49,9 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color(0xFF0A0E17),
       body: screens[_selectedIndex],
       bottomNavigationBar: Theme(
-        data: Theme.of(context).copyWith(
-          canvasColor: const Color(0xFF111827),
-        ),
+        data: Theme.of(context).copyWith(canvasColor: const Color(0xFF111827)),
         child: Container(
           decoration: const BoxDecoration(
             border: Border(
@@ -60,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: NavigationBar(
             backgroundColor: const Color(0xFF111827),
-            indicatorColor: const Color(0xFF00D4FF).withOpacity(0.15),
+            indicatorColor: const Color(0xFF00D4FF).withValues(alpha: 0.15),
             selectedIndex: _selectedIndex,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
             height: 65,
@@ -71,23 +69,44 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             destinations: [
               NavigationDestination(
-                icon: const Icon(Icons.video_library_outlined, color: Color(0xFF64748B)),
-                selectedIcon: const Icon(Icons.video_library_rounded, color: Color(0xFF00D4FF)),
+                icon: const Icon(
+                  Icons.video_library_outlined,
+                  color: Color(0xFF64748B),
+                ),
+                selectedIcon: const Icon(
+                  Icons.video_library_rounded,
+                  color: Color(0xFF00D4FF),
+                ),
                 label: 'Proyectos',
               ),
               NavigationDestination(
-                icon: const Icon(Icons.timeline_outlined, color: Color(0xFF64748B)),
-                selectedIcon: const Icon(Icons.timeline_rounded, color: Color(0xFF00D4FF)),
+                icon: const Icon(
+                  Icons.timeline_outlined,
+                  color: Color(0xFF64748B),
+                ),
+                selectedIcon: const Icon(
+                  Icons.timeline_rounded,
+                  color: Color(0xFF00D4FF),
+                ),
                 label: 'Editor',
               ),
               NavigationDestination(
-                icon: const Icon(Icons.ios_share_outlined, color: Color(0xFF64748B)),
-                selectedIcon: const Icon(Icons.ios_share_rounded, color: Color(0xFF00D4FF)),
+                icon: const Icon(
+                  Icons.ios_share_outlined,
+                  color: Color(0xFF64748B),
+                ),
+                selectedIcon: const Icon(
+                  Icons.ios_share_rounded,
+                  color: Color(0xFF00D4FF),
+                ),
                 label: 'Exportar',
               ),
               NavigationDestination(
                 icon: const Icon(Icons.tune_outlined, color: Color(0xFF64748B)),
-                selectedIcon: const Icon(Icons.tune_rounded, color: Color(0xFF00D4FF)),
+                selectedIcon: const Icon(
+                  Icons.tune_rounded,
+                  color: Color(0xFF00D4FF),
+                ),
                 label: 'Ajustes',
               ),
             ],
@@ -104,7 +123,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Center(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32.0,
+              vertical: 16.0,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -112,9 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFF7B61FF).withOpacity(0.08),
+                    color: const Color(0xFF7B61FF).withValues(alpha: 0.08),
                     border: Border.all(
-                      color: const Color(0xFF7B61FF).withOpacity(0.2),
+                      color: const Color(0xFF7B61FF).withValues(alpha: 0.2),
                       width: 1.5,
                     ),
                   ),
@@ -151,7 +173,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 14,
+                    ),
                   ),
                   onPressed: () {
                     setState(() {

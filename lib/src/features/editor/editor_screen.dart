@@ -2,11 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/database/database.dart';
+import '../../core/ffi/chronowave_ffi.dart';
 import '../../domain/project/project_model.dart';
 import 'widgets/timeline_widget.dart';
 
 class EditorScreen extends StatefulWidget {
-  const EditorScreen({super.key, required this.projectId, required this.onBack});
+  const EditorScreen({
+    super.key,
+    required this.projectId,
+    required this.onBack,
+  });
 
   final String projectId;
   final VoidCallback onBack;
@@ -25,6 +30,9 @@ class _EditorScreenState extends State<EditorScreen> {
   int _currentMs = 0;
   Timer? _playbackTimer;
   String? _selectedClipId;
+  final ChronoWaveFfi _timelineEngine = ChronoWaveFfi.instance;
+  TimelineEngineResult? _lastEngineResult;
+  bool _isSyncingEngine = false;
 
   // Media Bin local simulado (Stitch design)
   final List<Map<String, String>> _importedMedia = [
@@ -130,17 +138,22 @@ class _EditorScreenState extends State<EditorScreen> {
 
   // --- Controles del Reproductor ---
 
-  void _togglePlay() {
+  Future<void> _togglePlay() async {
     if (_isPlaying) {
       _playbackTimer?.cancel();
       setState(() {
         _isPlaying = false;
       });
     } else {
+      await _syncTimelineWithEngine('preview');
+      if (!mounted) return;
+
       setState(() {
         _isPlaying = true;
       });
-      _playbackTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      _playbackTimer = Timer.periodic(const Duration(milliseconds: 100), (
+        timer,
+      ) {
         if (!mounted) return;
         setState(() {
           if (_project != null && _currentMs >= _project!.durationMs) {
@@ -155,6 +168,27 @@ class _EditorScreenState extends State<EditorScreen> {
     }
   }
 
+  Future<TimelineEngineResult?> _syncTimelineWithEngine(String phase) async {
+    final project = _project;
+    if (project == null) return null;
+
+    setState(() {
+      _isSyncingEngine = true;
+    });
+
+    final result = _timelineEngine.processTimelineSnapshot(
+      project,
+      phase: phase,
+    );
+    if (!mounted) return result;
+
+    setState(() {
+      _lastEngineResult = result;
+      _isSyncingEngine = false;
+    });
+    return result;
+  }
+
   void _seek(int ms) {
     setState(() {
       if (_project != null) {
@@ -166,16 +200,20 @@ class _EditorScreenState extends State<EditorScreen> {
   }
 
   void _splitClip() {
-    if (_selectedClipId == null || _database == null || _project == null) return;
-    
+    if (_selectedClipId == null || _database == null || _project == null) {
+      return;
+    }
+
     try {
       final clip = _project!.clips.firstWhere((c) => c.id == _selectedClipId);
       final int relativePlayhead = _currentMs - clip.startMs;
 
       // Solo dividir si la playhead corta el clip en el medio
-      if (relativePlayhead > 1000 && relativePlayhead < clip.durationMs - 1000) {
-        final String newClipId = 'clip_split_${DateTime.now().millisecondsSinceEpoch}';
-        
+      if (relativePlayhead > 1000 &&
+          relativePlayhead < clip.durationMs - 1000) {
+        final String newClipId =
+            'clip_split_${DateTime.now().millisecondsSinceEpoch}';
+
         // 1. Reducir la duración del clip original
         final updatedOriginal = TimelineClip(
           id: clip.id,
@@ -204,6 +242,7 @@ class _EditorScreenState extends State<EditorScreen> {
 
         _database!.saveClip(updatedOriginal);
         _database!.saveClip(secondHalf);
+        _syncTimelineWithEngine('edit');
 
         setState(() {
           _selectedClipId = null;
@@ -218,7 +257,10 @@ class _EditorScreenState extends State<EditorScreen> {
                 const SizedBox(width: 12),
                 Text(
                   'Clip dividido exitosamente',
-                  style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -247,6 +289,7 @@ class _EditorScreenState extends State<EditorScreen> {
       );
 
       _database!.saveClip(updated);
+      _syncTimelineWithEngine('edit');
     } catch (e) {
       debugPrint('Error trimming clip: $e');
     }
@@ -274,7 +317,9 @@ class _EditorScreenState extends State<EditorScreen> {
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFF0A0E17),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF00D4FF))),
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF00D4FF)),
+        ),
       );
     }
 
@@ -357,11 +402,8 @@ class _EditorScreenState extends State<EditorScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Columna Izquierda: Media Bin / Importador (Stitch layout)
-                    Expanded(
-                      flex: 4,
-                      child: _buildMediaBinWidescreen(),
-                    ),
-                    
+                    Expanded(flex: 4, child: _buildMediaBinWidescreen()),
+
                     const VerticalDivider(color: Color(0xFF1E293B), width: 1),
 
                     // Columna Derecha: Player Preview
@@ -416,7 +458,11 @@ class _EditorScreenState extends State<EditorScreen> {
           children: [
             GestureDetector(
               onTap: widget.onBack,
-              child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -445,7 +491,11 @@ class _EditorScreenState extends State<EditorScreen> {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.share_rounded, color: Color(0xFF94A3B8), size: 20),
+              icon: const Icon(
+                Icons.share_rounded,
+                color: Color(0xFF94A3B8),
+                size: 20,
+              ),
               onPressed: () {},
             ),
           ],
@@ -468,23 +518,35 @@ class _EditorScreenState extends State<EditorScreen> {
             children: [
               GestureDetector(
                 onTap: widget.onBack,
-                child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 16),
               Text(
                 _project!.name,
-                style: GoogleFonts.sora(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                style: GoogleFonts.sora(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00D4FF).withOpacity(0.12),
+                  color: const Color(0xFF00D4FF).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   'WIDESCREEN RENDER',
-                  style: GoogleFonts.dmSans(color: const Color(0xFF00D4FF), fontSize: 9, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.dmSans(
+                    color: const Color(0xFF00D4FF),
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -515,7 +577,7 @@ class _EditorScreenState extends State<EditorScreen> {
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: [
-                    const Color(0xFF7B61FF).withOpacity(0.35),
+                    const Color(0xFF7B61FF).withValues(alpha: 0.35),
                     const Color(0xFF0A0E17),
                   ],
                   radius: 1.2,
@@ -524,7 +586,7 @@ class _EditorScreenState extends State<EditorScreen> {
               child: Center(
                 child: Icon(
                   Icons.movie_creation_outlined,
-                  color: const Color(0xFF00D4FF).withOpacity(0.15),
+                  color: const Color(0xFF00D4FF).withValues(alpha: 0.15),
                   size: 80,
                 ),
               ),
@@ -537,7 +599,7 @@ class _EditorScreenState extends State<EditorScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.65),
+                  color: Colors.black.withValues(alpha: 0.65),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -565,7 +627,7 @@ class _EditorScreenState extends State<EditorScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.75),
+                  color: Colors.black.withValues(alpha: 0.75),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -578,8 +640,47 @@ class _EditorScreenState extends State<EditorScreen> {
                 ),
               ),
             ),
+
+            Positioned(bottom: 12, left: 12, child: _buildEngineStatusBadge()),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEngineStatusBadge() {
+    final result = _lastEngineResult;
+    final label = _isSyncingEngine
+        ? 'SINCRONIZANDO'
+        : result == null
+        ? 'ENGINE LISTO'
+        : result.modeLabel.toUpperCase();
+    final color = result?.nativeLibraryUsed == true
+        ? const Color(0xFF10B981)
+        : const Color(0xFF7B61FF);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.75),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.memory_rounded, color: color, size: 12),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: GoogleFonts.dmSans(
+              color: Colors.white,
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -598,7 +699,9 @@ class _EditorScreenState extends State<EditorScreen> {
           IconButton(
             icon: Icon(
               Icons.content_cut_rounded,
-              color: _selectedClipId != null ? const Color(0xFF00D4FF) : const Color(0xFF475569),
+              color: _selectedClipId != null
+                  ? const Color(0xFF00D4FF)
+                  : const Color(0xFF475569),
             ),
             tooltip: 'Dividir Clip Seleccionado',
             onPressed: _selectedClipId != null ? _splitClip : null,
@@ -622,7 +725,7 @@ class _EditorScreenState extends State<EditorScreen> {
                     color: const Color(0xFF00D4FF),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00D4FF).withOpacity(0.3),
+                        color: const Color(0xFF00D4FF).withValues(alpha: 0.3),
                         blurRadius: 8,
                         spreadRadius: 1,
                       ),
@@ -679,7 +782,9 @@ class _EditorScreenState extends State<EditorScreen> {
               IconButton(
                 icon: Icon(
                   Icons.content_cut_rounded,
-                  color: _selectedClipId != null ? const Color(0xFF00D4FF) : const Color(0xFF475569),
+                  color: _selectedClipId != null
+                      ? const Color(0xFF00D4FF)
+                      : const Color(0xFF475569),
                   size: 18,
                 ),
                 onPressed: _selectedClipId != null ? _splitClip : null,
@@ -687,7 +792,9 @@ class _EditorScreenState extends State<EditorScreen> {
               Text(
                 'DIVIDIR',
                 style: GoogleFonts.dmSans(
-                  color: _selectedClipId != null ? const Color(0xFF00D4FF) : const Color(0xFF475569),
+                  color: _selectedClipId != null
+                      ? const Color(0xFF00D4FF)
+                      : const Color(0xFF475569),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
@@ -699,7 +806,11 @@ class _EditorScreenState extends State<EditorScreen> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 20),
+                icon: const Icon(
+                  Icons.skip_previous_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 onPressed: () => _seek(0),
               ),
               const SizedBox(width: 8),
@@ -721,7 +832,11 @@ class _EditorScreenState extends State<EditorScreen> {
               ),
               const SizedBox(width: 8),
               IconButton(
-                icon: const Icon(Icons.skip_next_rounded, color: Colors.white, size: 20),
+                icon: const Icon(
+                  Icons.skip_next_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 onPressed: () => _seek(_project!.durationMs),
               ),
             ],
@@ -732,7 +847,11 @@ class _EditorScreenState extends State<EditorScreen> {
             children: [
               Icon(Icons.volume_up_rounded, color: Color(0xFF64748B), size: 16),
               SizedBox(width: 6),
-              Icon(Icons.fullscreen_rounded, color: Color(0xFF64748B), size: 18),
+              Icon(
+                Icons.fullscreen_rounded,
+                color: Color(0xFF64748B),
+                size: 18,
+              ),
             ],
           ),
         ],
@@ -761,11 +880,16 @@ class _EditorScreenState extends State<EditorScreen> {
               GestureDetector(
                 onTap: () {},
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF7B61FF).withOpacity(0.12),
+                    color: const Color(0xFF7B61FF).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0xFF7B61FF).withOpacity(0.3)),
+                    border: Border.all(
+                      color: const Color(0xFF7B61FF).withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -793,7 +917,7 @@ class _EditorScreenState extends State<EditorScreen> {
               itemBuilder: (context, index) {
                 final media = _importedMedia[index];
                 final isAudio = media['res'] == 'Audio';
-                
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(6),
@@ -810,14 +934,24 @@ class _EditorScreenState extends State<EditorScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
                           gradient: LinearGradient(
-                            colors: isAudio 
-                                ? [const Color(0xFF7B61FF), const Color(0xFF7B61FF).withOpacity(0.5)]
-                                : [const Color(0xFF00D4FF), const Color(0xFF7B61FF)],
+                            colors: isAudio
+                                ? [
+                                    const Color(0xFF7B61FF),
+                                    const Color(
+                                      0xFF7B61FF,
+                                    ).withValues(alpha: 0.5),
+                                  ]
+                                : [
+                                    const Color(0xFF00D4FF),
+                                    const Color(0xFF7B61FF),
+                                  ],
                           ),
                         ),
                         child: Icon(
-                          isAudio ? Icons.audiotrack_rounded : Icons.video_camera_back_rounded,
-                          color: Colors.white.withOpacity(0.7),
+                          isAudio
+                              ? Icons.audiotrack_rounded
+                              : Icons.video_camera_back_rounded,
+                          color: Colors.white.withValues(alpha: 0.7),
                           size: 16,
                         ),
                       ),
@@ -872,9 +1006,13 @@ class _EditorScreenState extends State<EditorScreen> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF00D4FF).withOpacity(0.12),
+              color: const Color(0xFF00D4FF).withValues(alpha: 0.12),
             ),
-            child: const Icon(Icons.waves_rounded, color: Color(0xFF00D4FF), size: 20),
+            child: const Icon(
+              Icons.waves_rounded,
+              color: Color(0xFF00D4FF),
+              size: 20,
+            ),
           ),
           const Spacer(),
           _buildRailItem(Icons.folder_copy_rounded, false),
