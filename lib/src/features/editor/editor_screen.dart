@@ -690,13 +690,16 @@ class _EditorScreenState extends State<EditorScreen> {
 
   Widget _buildEngineStatusBadge() {
     final result = _lastEngineResult;
+    final diagnostic = _timelineEngine.mediaEngineDiagnostic;
     final label = _isSyncingEngine
         ? 'SINCRONIZANDO'
         : result == null
-        ? 'ENGINE LISTO'
+        ? diagnostic.statusLabel.toUpperCase()
         : result.modeLabel.toUpperCase();
     final color = result?.nativeLibraryUsed == true
         ? const Color(0xFF10B981)
+        : diagnostic.nativeLibraryUsed
+        ? const Color(0xFF00D4FF)
         : const Color(0xFF7B61FF);
 
     return Container(

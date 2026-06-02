@@ -1,11 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:chronowave_studio/src/app/chronowave_app.dart';
 import 'package:chronowave_studio/src/core/database/database.dart';
+import 'package:chronowave_studio/src/core/ffi/chronowave_ffi.dart';
 
 void main() {
   setUp(() {
     // Asegurar que la base de datos se ejecute en modo mock simulado para los tests de widgets
     AppDatabase.isTesting = true;
+    ChronoWaveFfi.instanceForTesting = ChronoWaveFfi.fallback(
+      'test native library unavailable',
+    );
+  });
+
+  tearDown(() {
+    ChronoWaveFfi.instanceForTesting = null;
   });
 
   testWidgets('shows the ChronoWave technical starting point in Spanish', (
@@ -45,6 +53,7 @@ void main() {
     await tester.tap(find.text('Exportar'));
     await tester.pumpAndSettle();
     expect(find.text('Exportar Video'), findsOneWidget);
+    expect(find.text('GStreamer/GES planificado'), findsOneWidget);
     expect(find.text('INICIAR EXPORTACIÓN'), findsOneWidget);
 
     // Navegar a Ajustes

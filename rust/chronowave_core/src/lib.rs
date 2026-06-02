@@ -2,6 +2,7 @@ use std::ffi::{c_char, CStr};
 
 const CORE_VERSION: &CStr = c"chronowave-core/0.1.0";
 const TIMELINE_ENGINE_NAME: &str = "gstreamer-ges-planned";
+const MEDIA_ENGINE_DIAGNOSTIC: &CStr = c"{\"engine\":\"GStreamer/GES\",\"status\":\"simulated\",\"mode\":\"rust-ffi-smoke\",\"native_bindings\":false,\"detail\":\"GStreamer/GES bindings are not compiled in this build; Rust FFI accepts timeline snapshots for preview/export diagnostics.\"}";
 
 pub fn core_version() -> &'static str {
     CORE_VERSION
@@ -13,9 +14,20 @@ pub fn timeline_engine_name() -> &'static str {
     TIMELINE_ENGINE_NAME
 }
 
+pub fn media_engine_diagnostic_json() -> &'static str {
+    MEDIA_ENGINE_DIAGNOSTIC
+        .to_str()
+        .expect("static ChronoWave media diagnostic must be valid UTF-8")
+}
+
 #[no_mangle]
 pub extern "C" fn chronowave_core_version() -> *const c_char {
     CORE_VERSION.as_ptr()
+}
+
+#[no_mangle]
+pub extern "C" fn chronowave_media_engine_diagnostic() -> *const c_char {
+    MEDIA_ENGINE_DIAGNOSTIC.as_ptr()
 }
 
 /// Procesa un snapshot del timeline en formato JSON enviado por Dart/Flutter.
@@ -36,7 +48,10 @@ pub extern "C" fn process_timeline_snapshot(json_ptr: *const c_char) -> i32 {
         Err(_) => return -2, // Cadena UTF-8 inválida
     };
 
-    println!("Rust [chronowave_core] FFI recibió snapshot ({} bytes).", json_data.len());
+    println!(
+        "Rust [chronowave_core] FFI recibió snapshot ({} bytes).",
+        json_data.len()
+    );
 
     // Simulación del motor según la feature flag de GStreamer
     #[cfg(feature = "gstreamer")]

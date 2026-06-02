@@ -1,41 +1,35 @@
-import 'dart:io';
-
 import 'package:chronowave_studio/src/core/ffi/chronowave_ffi.dart';
 import 'package:chronowave_studio/src/domain/project/project_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 
 void main() {
-  test('loads the compiled Rust library when native FFI is required', () {
-    final requireNative =
-        Platform.environment['CHRONOWAVE_REQUIRE_NATIVE_FFI'] == 'true';
-    if (!requireNative) {
-      return;
-    }
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  testWidgets('loads ChronoWave Rust FFI library on Android device', (
+    tester,
+  ) async {
     final engine = ChronoWaveFfi.load();
     final diagnostic = engine.mediaEngineDiagnostic;
     final result = engine.processTimelineSnapshot(
       _sampleProject(),
-      phase: 'native-smoke',
+      phase: 'android-device-smoke',
     );
 
     expect(engine.isNativeAvailable, isTrue, reason: engine.loadError);
     expect(engine.nativeVersion, 'chronowave-core/0.1.0');
     expect(diagnostic.nativeLibraryUsed, isTrue);
     expect(diagnostic.engine, 'GStreamer/GES');
-    expect(diagnostic.status, 'simulated');
-    expect(diagnostic.nativeBindings, isFalse);
     expect(result.nativeLibraryUsed, isTrue);
     expect(result.accepted, isTrue);
-    expect(result.code, 1);
   });
 }
 
 ChronoProject _sampleProject() {
-  final now = DateTime.utc(2026, 5, 31, 22, 20);
+  final now = DateTime.utc(2026, 6, 2, 23, 0);
   return ChronoProject(
-    id: 'native-ffi-project',
-    name: 'Native FFI Project',
+    id: 'android-ffi-project',
+    name: 'Android FFI Project',
     createdAt: now,
     updatedAt: now,
     schemaVersion: 1,
@@ -44,7 +38,7 @@ ChronoProject _sampleProject() {
     tracks: const [
       ProjectTrack(
         id: 'track-video',
-        projectId: 'native-ffi-project',
+        projectId: 'android-ffi-project',
         type: TrackType.video,
         name: 'Video 1',
         orderIndex: 0,

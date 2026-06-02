@@ -21,11 +21,16 @@ void main() {
   test('uses Dart fallback when the native library is unavailable', () {
     final engine = ChronoWaveFfi.fallback('missing native library');
 
+    final diagnostic = engine.mediaEngineDiagnostic;
     final result = engine.processTimelineSnapshot(
       _sampleProject(),
       phase: 'export',
     );
 
+    expect(diagnostic.nativeLibraryUsed, isFalse);
+    expect(diagnostic.engine, 'GStreamer/GES');
+    expect(diagnostic.status, 'planned');
+    expect(diagnostic.nativeBindings, isFalse);
     expect(result.nativeLibraryUsed, isFalse);
     expect(result.accepted, isTrue);
     expect(result.code, 1);

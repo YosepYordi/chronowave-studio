@@ -10,6 +10,59 @@ typedef _ProcessTimelineSnapshotNative = Int32 Function(Pointer<Utf8>);
 typedef _ProcessTimelineSnapshotDart = int Function(Pointer<Utf8>);
 typedef _CoreVersionNative = Pointer<Utf8> Function();
 typedef _CoreVersionDart = Pointer<Utf8> Function();
+typedef _MediaEngineDiagnosticNative = Pointer<Utf8> Function();
+typedef _MediaEngineDiagnosticDart = Pointer<Utf8> Function();
+
+class MediaEngineDiagnostic {
+  const MediaEngineDiagnostic({
+    required this.engine,
+    required this.status,
+    required this.mode,
+    required this.nativeBindings,
+    required this.nativeLibraryUsed,
+    required this.detail,
+  });
+
+  final String engine;
+  final String status;
+  final String mode;
+  final bool nativeBindings;
+  final bool nativeLibraryUsed;
+  final String detail;
+
+  String get statusLabel {
+    if (nativeBindings) return '$engine listo';
+    if (nativeLibraryUsed) return '$engine simulado';
+    return '$engine planificado';
+  }
+
+  factory MediaEngineDiagnostic.fromJson(
+    Map<String, Object?> json, {
+    required bool nativeLibraryUsed,
+  }) {
+    return MediaEngineDiagnostic(
+      engine: (json['engine'] as String?) ?? 'GStreamer/GES',
+      status: (json['status'] as String?) ?? 'unknown',
+      mode: (json['mode'] as String?) ?? 'unknown',
+      nativeBindings: (json['native_bindings'] as bool?) ?? false,
+      nativeLibraryUsed: nativeLibraryUsed,
+      detail: (json['detail'] as String?) ?? 'Diagnostico sin detalle.',
+    );
+  }
+
+  factory MediaEngineDiagnostic.fallback(String? loadError) {
+    return MediaEngineDiagnostic(
+      engine: 'GStreamer/GES',
+      status: 'planned',
+      mode: 'dart-fallback',
+      nativeBindings: false,
+      nativeLibraryUsed: false,
+      detail: loadError == null || loadError.isEmpty
+          ? 'Libreria Rust pendiente; usando diagnostico Dart.'
+          : 'Libreria Rust no disponible: $loadError',
+    );
+  }
+}
 
 class TimelineEngineResult {
   const TimelineEngineResult({
@@ -40,10 +93,12 @@ class ChronoWaveFfi {
     DynamicLibrary? library,
     _ProcessTimelineSnapshotDart? processTimelineSnapshot,
     _CoreVersionDart? coreVersion,
+    _MediaEngineDiagnosticDart? mediaEngineDiagnostic,
     this.loadError,
   }) : _library = library,
        _processTimelineSnapshot = processTimelineSnapshot,
-       _coreVersion = coreVersion;
+       _coreVersion = coreVersion,
+       _mediaEngineDiagnostic = mediaEngineDiagnostic;
 
   factory ChronoWaveFfi.load({DynamicLibrary? library}) {
     try {
@@ -59,6 +114,11 @@ class ChronoWaveFfi {
             .lookupFunction<_CoreVersionNative, _CoreVersionDart>(
               'chronowave_core_version',
             ),
+        mediaEngineDiagnostic: resolvedLibrary
+            .lookupFunction<
+              _MediaEngineDiagnosticNative,
+              _MediaEngineDiagnosticDart
+            >('chronowave_media_engine_diagnostic'),
       );
     } catch (error) {
       return ChronoWaveFfi.fallback(error.toString());
@@ -80,6 +140,7 @@ class ChronoWaveFfi {
   final DynamicLibrary? _library;
   final _ProcessTimelineSnapshotDart? _processTimelineSnapshot;
   final _CoreVersionDart? _coreVersion;
+  final _MediaEngineDiagnosticDart? _mediaEngineDiagnostic;
   final String? loadError;
 
   bool get isNativeAvailable =>
@@ -92,6 +153,36 @@ class ChronoWaveFfi {
     final versionPointer = versionLookup();
     if (versionPointer == nullptr) return null;
     return versionPointer.toDartString();
+  }
+
+  MediaEngineDiagnostic get mediaEngineDiagnostic {
+    final diagnosticLookup = _mediaEngineDiagnostic;
+    if (diagnosticLookup == null) {
+      return MediaEngineDiagnostic.fallback(loadError);
+    }
+
+    try {
+      final diagnosticPointer = diagnosticLookup();
+      if (diagnosticPointer == nullptr) {
+        return MediaEngineDiagnostic.fallback(
+          'chronowave_media_engine_diagnostic returned null',
+        );
+      }
+
+      final decoded = jsonDecode(diagnosticPointer.toDartString());
+      if (decoded is! Map<String, Object?>) {
+        return MediaEngineDiagnostic.fallback(
+          'chronowave_media_engine_diagnostic returned non-object JSON',
+        );
+      }
+
+      return MediaEngineDiagnostic.fromJson(
+        decoded,
+        nativeLibraryUsed: isNativeAvailable,
+      );
+    } catch (error) {
+      return MediaEngineDiagnostic.fallback(error.toString());
+    }
   }
 
   TimelineEngineResult processTimelineSnapshot(
