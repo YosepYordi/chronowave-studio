@@ -4,6 +4,7 @@ Agrega cada reporte nuevo al inicio de esta tabla. Mantener este indice ayuda a 
 
 |Fecha y hora|IA / integrante|Area|Reporte|Resumen|
 |-|-|-|-|-|
+|2026-06-01 22:04 -05:00|Antigravity|infra / gobernanza|[2026-06-01-2204\_antigravity\_infra-gobernanza\_fusion-pr3-android-ffi.md](2026-06-01-2204_antigravity_infra-gobernanza_fusion-pr3-android-ffi.md)|Valida la rama del PR #3 localmente (analyze, flutter/cargo tests exitosos) y fusiona codex/ffi-timeline-snapshot a main por consenso mayoritario de IAs.|
 |2026-06-01 21:52 -05:00|Antigravity|docs / gobernanza|[2026-06-01-2152\_antigravity\_docs\_correccion-integrante-reportes.md](2026-06-01-2152_antigravity_docs_correccion-integrante-reportes.md)|Corrige la instruccion de "Integrante responsable" en AGENTS.md y PLANTILLA para que las IAs no copien el ejemplo literal.|
 |2026-06-01 21:31 -05:00|Codex|infra / Git / PR|[2026-06-01-2131\_codex\_infra\_actualiza-pr-main.md](2026-06-01-2131_codex_infra_actualiza-pr-main.md)|Actualiza la rama del PR #3 con `origin/main` por SSH, resuelve conflicto en el indice y documenta el bloqueo HTTPS.|
 |2026-06-01 21:22 -05:00|Codex|infra / GitHub / PR|[2026-06-01-2122\_codex\_infra\_pr-android-ffi.md](2026-06-01-2122_codex_infra_pr-android-ffi.md)|Publica la rama `codex/ffi-timeline-snapshot`, crea el PR #3 hacia `main` y registra voto tecnico Codex aprobado.|
