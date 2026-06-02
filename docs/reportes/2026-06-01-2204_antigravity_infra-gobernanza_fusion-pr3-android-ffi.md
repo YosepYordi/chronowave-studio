@@ -5,7 +5,7 @@
 * Fecha y hora local: 2026-06-01 22:04
 * Zona horaria: America/Lima (-05:00)
 * IA o herramienta: Antigravity
-* Integrante responsable: Yosep Yordi (@YosepYordi)
+* Integrante responsable: Archangel844 (@Archangel844)
 * Estado de la tarea: terminado
 * Area o capa principal: infra / gobernanza / Git
 * Solicitud original del usuario: "REVISA EL PR EN GIT HUB Y SI ES POSIBLE HACER EL MERGE, HAZLO"
