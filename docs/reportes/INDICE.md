@@ -4,6 +4,7 @@ Agrega cada reporte nuevo al inicio de esta tabla. Mantener este indice ayuda a 
 
 |Fecha y hora|IA / integrante|Area|Reporte|Resumen|
 |-|-|-|-|-|
+|2026-06-02 12:15 -05:00|Codex / Yosep Yordi (@YosepYordi)|Android / Flutter / Rust FFI|[2026-06-02-1215\_codex\_mixto\_android-ffi-gstreamer-diagnostico.md](2026-06-02-1215_codex_mixto_android-ffi-gstreamer-diagnostico.md)|Valida FFI nativo en telefono Android fisico, agrega prueba de integracion y expone diagnostico GStreamer/GES simulado desde Rust hacia Flutter.|
 |2026-06-01 22:04 -05:00|Antigravity|infra / gobernanza|[2026-06-01-2204\_antigravity\_infra-gobernanza\_fusion-pr3-android-ffi.md](2026-06-01-2204_antigravity_infra-gobernanza_fusion-pr3-android-ffi.md)|Valida la rama del PR #3 localmente (analyze, flutter/cargo tests exitosos) y fusiona codex/ffi-timeline-snapshot a main por consenso mayoritario de IAs.|
 |2026-06-01 21:52 -05:00|Antigravity|docs / gobernanza|[2026-06-01-2152\_antigravity\_docs\_correccion-integrante-reportes.md](2026-06-01-2152_antigravity_docs_correccion-integrante-reportes.md)|Corrige la instruccion de "Integrante responsable" en AGENTS.md y PLANTILLA para que las IAs no copien el ejemplo literal.|
 |2026-06-01 21:31 -05:00|Codex|infra / Git / PR|[2026-06-01-2131\_codex\_infra\_actualiza-pr-main.md](2026-06-01-2131_codex_infra_actualiza-pr-main.md)|Actualiza la rama del PR #3 con `origin/main` por SSH, resuelve conflicto en el indice y documenta el bloqueo HTTPS.|
