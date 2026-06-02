@@ -6,6 +6,72 @@ import '../../core/ffi/chronowave_ffi.dart';
 import '../../domain/project/project_model.dart';
 import 'widgets/timeline_widget.dart';
 
+TimelineClip trimTimelineClip(
+  TimelineClip clip, {
+  required int startMs,
+  required int durationMs,
+}) {
+  if (startMs < 0) {
+    throw ArgumentError.value(startMs, 'startMs', 'must be non-negative');
+  }
+  if (durationMs < 0) {
+    throw ArgumentError.value(durationMs, 'durationMs', 'must be non-negative');
+  }
+
+  final sourceInMs = clip.sourceInMs + (startMs - clip.startMs);
+  final sourceOutMs = sourceInMs + durationMs;
+  if (sourceInMs < 0) {
+    throw ArgumentError.value(
+      startMs,
+      'startMs',
+      'trim would move sourceInMs before zero',
+    );
+  }
+  if (sourceOutMs > clip.sourceOutMs) {
+    throw ArgumentError.value(
+      durationMs,
+      'durationMs',
+      'trim would extend beyond original sourceOutMs',
+    );
+  }
+
+  return clip.copyWith(
+    startMs: startMs,
+    durationMs: durationMs,
+    sourceInMs: sourceInMs,
+    sourceOutMs: sourceOutMs,
+  );
+}
+
+List<TimelineClip> splitTimelineClipAt(
+  TimelineClip clip, {
+  required int playheadMs,
+  required String newClipId,
+}) {
+  final relativePlayheadMs = playheadMs - clip.startMs;
+  if (relativePlayheadMs <= 0 || relativePlayheadMs >= clip.durationMs) {
+    throw ArgumentError.value(
+      playheadMs,
+      'playheadMs',
+      'must be inside the clip bounds',
+    );
+  }
+
+  final secondSourceInMs = clip.sourceInMs + relativePlayheadMs;
+  return [
+    clip.copyWith(
+      durationMs: relativePlayheadMs,
+      sourceOutMs: secondSourceInMs,
+    ),
+    clip.copyWith(
+      id: newClipId,
+      startMs: playheadMs,
+      durationMs: clip.durationMs - relativePlayheadMs,
+      sourceInMs: secondSourceInMs,
+    ),
+  ];
+}
+
 class EditorScreen extends StatefulWidget {
   const EditorScreen({
     super.key,
@@ -214,34 +280,14 @@ class _EditorScreenState extends State<EditorScreen> {
         final String newClipId =
             'clip_split_${DateTime.now().millisecondsSinceEpoch}';
 
-        // 1. Reducir la duración del clip original
-        final updatedOriginal = TimelineClip(
-          id: clip.id,
-          trackId: clip.trackId,
-          startMs: clip.startMs,
-          durationMs: relativePlayhead,
-          sourceInMs: clip.sourceInMs,
-          sourceOutMs: clip.sourceInMs + relativePlayhead,
-          assetId: clip.assetId,
-          zIndex: clip.zIndex,
-          volume: clip.volume,
+        final halves = splitTimelineClipAt(
+          clip,
+          playheadMs: _currentMs,
+          newClipId: newClipId,
         );
 
-        // 2. Crear la segunda mitad como un nuevo clip
-        final secondHalf = TimelineClip(
-          id: newClipId,
-          trackId: clip.trackId,
-          startMs: _currentMs,
-          durationMs: clip.durationMs - relativePlayhead,
-          sourceInMs: clip.sourceInMs + relativePlayhead,
-          sourceOutMs: clip.sourceOutMs,
-          assetId: clip.assetId,
-          zIndex: clip.zIndex,
-          volume: clip.volume,
-        );
-
-        _database!.saveClip(updatedOriginal);
-        _database!.saveClip(secondHalf);
+        _database!.saveClip(halves.first);
+        _database!.saveClip(halves.last);
         _syncTimelineWithEngine('edit');
 
         setState(() {
@@ -276,16 +322,10 @@ class _EditorScreenState extends State<EditorScreen> {
     if (_database == null || _project == null) return;
     try {
       final clip = _project!.clips.firstWhere((c) => c.id == clipId);
-      final updated = TimelineClip(
-        id: clip.id,
-        trackId: clip.trackId,
+      final updated = trimTimelineClip(
+        clip,
         startMs: startMs,
         durationMs: durationMs,
-        sourceInMs: clip.sourceInMs,
-        sourceOutMs: clip.sourceInMs + durationMs, // Mapeado
-        assetId: clip.assetId,
-        zIndex: clip.zIndex,
-        volume: clip.volume,
       );
 
       _database!.saveClip(updated);

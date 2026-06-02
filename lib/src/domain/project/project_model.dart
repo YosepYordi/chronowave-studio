@@ -1,21 +1,8 @@
-enum ProjectSyncState {
-  localOnly,
-  pendingUpload,
-  synced,
-  conflict,
-}
+enum ProjectSyncState { localOnly, pendingUpload, synced, conflict }
 
-enum MediaAssetType {
-  video,
-  audio,
-  image,
-}
+enum MediaAssetType { video, audio, image }
 
-enum TrackType {
-  video,
-  audio,
-  text,
-}
+enum TrackType { video, audio, text }
 
 class ChronoProject {
   const ChronoProject({
@@ -151,6 +138,44 @@ class TimelineClip {
   int get sourceDurationMs => sourceOutMs - sourceInMs;
 
   double get normalizedVolume => _clampUnit(volume);
+
+  static const Object _unset = Object();
+
+  TimelineClip copyWith({
+    String? id,
+    String? trackId,
+    Object? assetId = _unset,
+    int? startMs,
+    int? durationMs,
+    int? sourceInMs,
+    int? sourceOutMs,
+    int? zIndex,
+    double? volume,
+    int? fadeInMs,
+    int? fadeOutMs,
+    Object? effectConfigJson = _unset,
+    Object? textConfigJson = _unset,
+  }) {
+    return TimelineClip(
+      id: id ?? this.id,
+      trackId: trackId ?? this.trackId,
+      assetId: assetId == _unset ? this.assetId : assetId as String?,
+      startMs: startMs ?? this.startMs,
+      durationMs: durationMs ?? this.durationMs,
+      sourceInMs: sourceInMs ?? this.sourceInMs,
+      sourceOutMs: sourceOutMs ?? this.sourceOutMs,
+      zIndex: zIndex ?? this.zIndex,
+      volume: volume ?? this.volume,
+      fadeInMs: fadeInMs ?? this.fadeInMs,
+      fadeOutMs: fadeOutMs ?? this.fadeOutMs,
+      effectConfigJson: effectConfigJson == _unset
+          ? this.effectConfigJson
+          : effectConfigJson as String?,
+      textConfigJson: textConfigJson == _unset
+          ? this.textConfigJson
+          : textConfigJson as String?,
+    );
+  }
 }
 
 double _clampUnit(double value) => value.clamp(0, 1).toDouble();

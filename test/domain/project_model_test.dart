@@ -82,4 +82,69 @@ void main() {
     expect(clip.endMs, 2000);
     expect(clip.sourceDurationMs, 1750);
   });
+
+  test(
+    'copies timeline clip fields while overriding selected timing values',
+    () {
+      const clip = TimelineClip(
+        id: 'clip-video',
+        trackId: 'track-video',
+        assetId: 'asset-video',
+        startMs: 1000,
+        durationMs: 8000,
+        sourceInMs: 2000,
+        sourceOutMs: 10000,
+        zIndex: 3,
+        volume: 0.8,
+        fadeInMs: 250,
+        fadeOutMs: 400,
+        effectConfigJson: '{"blur":0.2}',
+        textConfigJson: '{"title":"scene"}',
+      );
+
+      final copied = clip.copyWith(
+        startMs: 2500,
+        durationMs: 6500,
+        sourceInMs: 3500,
+      );
+
+      expect(copied.id, clip.id);
+      expect(copied.trackId, clip.trackId);
+      expect(copied.assetId, clip.assetId);
+      expect(copied.startMs, 2500);
+      expect(copied.durationMs, 6500);
+      expect(copied.sourceInMs, 3500);
+      expect(copied.sourceOutMs, clip.sourceOutMs);
+      expect(copied.zIndex, clip.zIndex);
+      expect(copied.volume, clip.volume);
+      expect(copied.fadeInMs, clip.fadeInMs);
+      expect(copied.fadeOutMs, clip.fadeOutMs);
+      expect(copied.effectConfigJson, clip.effectConfigJson);
+      expect(copied.textConfigJson, clip.textConfigJson);
+    },
+  );
+
+  test('clears nullable timeline clip fields with copyWith', () {
+    const clip = TimelineClip(
+      id: 'clip-video',
+      trackId: 'track-video',
+      assetId: 'asset-video',
+      startMs: 1000,
+      durationMs: 8000,
+      sourceInMs: 2000,
+      sourceOutMs: 10000,
+      effectConfigJson: '{"blur":0.2}',
+      textConfigJson: '{"title":"scene"}',
+    );
+
+    final copied = clip.copyWith(
+      assetId: null,
+      effectConfigJson: null,
+      textConfigJson: null,
+    );
+
+    expect(copied.assetId, isNull);
+    expect(copied.effectConfigJson, isNull);
+    expect(copied.textConfigJson, isNull);
+  });
 }

@@ -4,6 +4,8 @@ Agrega cada reporte nuevo al inicio de esta tabla. Mantener este indice ayuda a 
 
 |Fecha y hora|IA / integrante|Area|Reporte|Resumen|
 |-|-|-|-|-|
+|2026-06-01 20:50 -05:00|Codex|infra / Android / FFI|[2026-06-01-2050\_codex\_infra\_android-ffi-packaging.md](2026-06-01-2050_codex_infra_android-ffi-packaging.md)|Compila `chronowave_core` como `libchronowave_core.so` para `arm64-v8a` y `x86_64` desde Gradle y la empaqueta en APK debug/release.|
+|2026-06-01 20:43 -05:00|Codex|frontend / editor / tests|[2026-06-01-2043\_codex\_frontend\_editor-trim-split.md](2026-06-01-2043_codex_frontend_editor-trim-split.md)|Corrige trim/split de clips en Flutter para preservar metadatos y ajustar `sourceInMs`; agrega pruebas TDD enfocadas.|
 |2026-05-31 22:31 -05:00|Codex|infra / toolchain / FFI|[2026-05-31-2231\_codex\_infra\_toolchain-android-rust.md](2026-05-31-2231_codex_infra_toolchain-android-rust.md)|Instala/configura Rust, Android SDK y JDK 17; compila `chronowave_core.dll`, valida FFI nativo real y genera APK debug.|
 |2026-05-31 21:52 -05:00|Codex|frontend / core / FFI|[2026-05-31-2152\_codex\_mixto\_ffi-timeline-snapshot.md](2026-05-31-2152_codex_mixto_ffi-timeline-snapshot.md)|Conecta snapshots JSON del timeline a un puente Flutter FFI con fallback Dart, integra editor/exportacion y deja `flutter analyze` limpio.|
 |2026-05-30 23:25 -05:00|Antigravity|docs / gobernanza|[2026-05-30-2325\_antigravity\_docs\_consenso-ia.md](2026-05-30-2325_antigravity_docs_consenso-ia.md)|Establece la regla de aprobación de Pull Requests por consenso de IAs y registra el primer voto para el PR #1.|
