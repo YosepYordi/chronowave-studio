@@ -5,7 +5,7 @@
 * Fecha y hora local:
 * Zona horaria:
 * IA o herramienta:
-* Integrante responsable: Nombre Real (@UsuarioGitHub)
+* Integrante responsable: (Obtener del contexto de sesion o preguntar al usuario. No copiar ejemplos. Si no se puede determinar, escribir `Desconocido`.)
 * Estado de la tarea: terminado | parcial | bloqueado
 * Area o capa principal:
 * Solicitud original del usuario:

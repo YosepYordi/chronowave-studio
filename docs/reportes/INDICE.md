@@ -4,6 +4,7 @@ Agrega cada reporte nuevo al inicio de esta tabla. Mantener este indice ayuda a 
 
 |Fecha y hora|IA / integrante|Area|Reporte|Resumen|
 |-|-|-|-|-|
+|2026-06-01 21:52 -05:00|Antigravity|docs / gobernanza|[2026-06-01-2152\_antigravity\_docs\_correccion-integrante-reportes.md](2026-06-01-2152_antigravity_docs_correccion-integrante-reportes.md)|Corrige la instruccion de "Integrante responsable" en AGENTS.md y PLANTILLA para que las IAs no copien el ejemplo literal.|
 |2026-05-31 23:25 -05:00|Antigravity|docs|[2026-05-31-2325\_antigravity\_docs\_regla-subida-automatica-docs.md](2026-05-31-2325_antigravity_docs_regla-subida-automatica-docs.md)|Establece la regla en AGENTS.md para que la subida de la carpeta docs/ sea obligatoria y automática de inmediato.|
 |2026-05-31 23:20 -05:00|Antigravity|docs / infra|[2026-05-31-2320\_antigravity\_docs-infra\_formato-integrantes-y-fusion-codex.md](2026-05-31-2320_antigravity_docs-infra_formato-integrantes-y-fusion-codex.md)|Actualiza las reglas de integrantes en AGENTS.md y plantilla; crea, valida y fusiona el PR #2 de Codex FFI a main.|
 |2026-05-31 22:31 -05:00|Codex|infra / toolchain / FFI|[2026-05-31-2231\_codex\_infra\_toolchain-android-rust.md](2026-05-31-2231_codex_infra_toolchain-android-rust.md)|Instala/configura Rust, Android SDK y JDK 17; compila `chronowave_core.dll`, valida FFI nativo real y genera APK debug.|
