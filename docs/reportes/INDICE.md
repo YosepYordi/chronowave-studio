@@ -4,6 +4,7 @@ Agrega cada reporte nuevo al inicio de esta tabla. Mantener este indice ayuda a 
 
 |Fecha y hora|IA / integrante|Area|Reporte|Resumen|
 |-|-|-|-|-|
+|2026-06-01 21:22 -05:00|Codex|infra / GitHub / PR|[2026-06-01-2122\_codex\_infra\_pr-android-ffi.md](2026-06-01-2122_codex_infra_pr-android-ffi.md)|Publica la rama `codex/ffi-timeline-snapshot`, crea el PR #3 hacia `main` y registra voto tecnico Codex aprobado.|
 |2026-06-01 20:50 -05:00|Codex|infra / Android / FFI|[2026-06-01-2050\_codex\_infra\_android-ffi-packaging.md](2026-06-01-2050_codex_infra_android-ffi-packaging.md)|Compila `chronowave_core` como `libchronowave_core.so` para `arm64-v8a` y `x86_64` desde Gradle y la empaqueta en APK debug/release.|
 |2026-06-01 20:43 -05:00|Codex|frontend / editor / tests|[2026-06-01-2043\_codex\_frontend\_editor-trim-split.md](2026-06-01-2043_codex_frontend_editor-trim-split.md)|Corrige trim/split de clips en Flutter para preservar metadatos y ajustar `sourceInMs`; agrega pruebas TDD enfocadas.|
 |2026-05-31 22:31 -05:00|Codex|infra / toolchain / FFI|[2026-05-31-2231\_codex\_infra\_toolchain-android-rust.md](2026-05-31-2231_codex_infra_toolchain-android-rust.md)|Instala/configura Rust, Android SDK y JDK 17; compila `chronowave_core.dll`, valida FFI nativo real y genera APK debug.|
