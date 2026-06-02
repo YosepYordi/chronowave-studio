@@ -8,6 +8,10 @@ Toda IA que cree, edite, elimine, mueva o configure archivos del proyecto debe c
 
 Sin reporte, la modificacion se considera incompleta.
 
+> [!IMPORTANT]
+> **Subida Obligatoria de Documentación (docs/):**
+> Al finalizar el turno, toda modificación en la documentación (todo lo contenido dentro de la carpeta `docs/`, incluyendo reportes de IA e índices) se debe subir (`push`) obligatoriamente a la rama principal `main` en `origin` de forma automática, sin requerir consulta ni aprobación previa del humano.
+
 ## Sincronizacion con GitHub
 
 Al inicio de una tarea, antes de modificar archivos, la IA debe intentar trabajar sobre la version mas reciente del repositorio remoto.
@@ -23,9 +27,11 @@ Flujo recomendado:
 
 La IA no debe usar comandos que reescriban historia o descarten trabajo, como `reset --hard`, `checkout -- .`, `clean -fd`, `push --force` o equivalentes, salvo que el humano lo pida explicitamente y entienda el riesgo.
 
-Al final de una tarea, despues de crear el reporte y validar los cambios, la IA debe preguntar al humano si quiere enviar los cambios a GitHub. No debe hacer `push` automatico sin autorizacion.
+Al final de una tarea, despues de crear el reporte y validar los cambios, la IA debe preguntar al humano si quiere enviar los cambios de código a GitHub. No debe hacer `push` automatico de código de producción o desarrollo sin autorizacion.
 
-Si el humano aprueba enviar a GitHub, la IA debe confirmar o proponer:
+**Excepción obligatoria para documentación:** Toda modificación en la documentación (todo lo contenido dentro de la carpeta `docs/`, incluyendo reportes de IA e índices) se debe subir (push) obligatoriamente a la rama principal `main` en `origin` de forma automática tan pronto como finalice la tarea, sin requerir consulta previa.
+
+Si el humano aprueba enviar los cambios de código a GitHub, la IA debe confirmar o proponer:
 
 - Rama destino.
 - Archivos a incluir.
@@ -101,7 +107,7 @@ El reporte debe seguir `docs/reportes/PLANTILLA_REPORTE_IA.md` y debe incluir co
 
 - Fecha y hora de la modificacion.
 - IA o herramienta usada.
-- Integrante responsable, si se conoce.
+- Integrante responsable en formato: `Nombre Real (@UsuarioGitHub)`, si se conoce (por ejemplo: `Yosep Yordi (@YosepYordi)`).
 - Objetivo de la tarea.
 - Reportes previos leidos.
 - Archivos creados, modificados o eliminados.
@@ -122,7 +128,7 @@ La respuesta final de la IA debe mencionar:
 - Que reporte creo.
 - Que validacion ejecuto o por que no ejecuto validacion tecnica.
 - Cualquier riesgo o pendiente relevante.
-- Si pregunto al humano por enviar los cambios a GitHub o por que no aplica.
+- Si pregunto al humano por enviar los cambios de código a GitHub o por qué no aplica (recordando que para la documentación en `docs/` el push a `main origin` es automático, obligatorio y ya se realizó sin consultar).
 - Si detecto archivos dudosos para subir o reglas de `.gitignore` que deban revisarse.
 
 ## Si solo investigaste
