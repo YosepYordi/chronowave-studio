@@ -6,9 +6,5 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-[features]
-default = []
-gstreamer = []
-
 [dependencies]
 # Dependencias ligeras listas para el puente FFI del MVP

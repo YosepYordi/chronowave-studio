@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/ffi/chronowave_ffi.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -54,6 +56,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ffi = ChronoWaveFfi.instance;
+    final mediaDiagnostic = ffi.mediaEngineDiagnostic;
+    final nativeVersion = ffi.nativeVersion;
+    final isNativeAvailable = ffi.isNativeAvailable;
+    final rustStatus = isNativeAvailable
+        ? 'CONECTADO (${nativeVersion ?? 'version no reportada'})'
+        : 'NO DISPONIBLE';
+    final rustDetails = isNativeAvailable
+        ? nativeVersion == null
+              ? 'Libreria nativa Rust disponible; version no reportada.'
+              : 'Libreria nativa Rust disponible: $nativeVersion.'
+        : 'Fallback Dart activo. Version nativa no disponible.';
+    final rustStatusColor = isNativeAvailable
+        ? const Color(0xFF00D4FF)
+        : const Color(0xFFFF6B9D);
+    final mediaStatusColor = switch (mediaDiagnostic.status) {
+      'ready' => const Color(0xFF10B981),
+      'simulated' => const Color(0xFF00D4FF),
+      'planned' => const Color(0xFF7B61FF),
+      'unavailable' => const Color(0xFFFF6B9D),
+      _ => const Color(0xFF64748B),
+    };
+
     return Scaffold(
       backgroundColor: const Color(0xFF0A0E17),
       body: SafeArea(
@@ -209,10 +234,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Estado de Rust
               _buildTelemetryCard(
                 title: 'Rust FFI Bridge',
-                status: 'CONECTADO (v0.1.0-alpha)',
-                statusColor: const Color(0xFF00D4FF),
-                details:
-                    'Compilación estática x86_64-pc-windows-msvc integrada exitosamente.',
+                status: rustStatus,
+                statusColor: rustStatusColor,
+                details: rustDetails,
                 icon: Icons.code_rounded,
               ),
               const SizedBox(height: 12),
@@ -220,10 +244,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Estado de GStreamer
               _buildTelemetryCard(
                 title: 'GStreamer Pipeline Core',
-                status: 'INICIALIZADO (v1.22.5)',
-                statusColor: const Color(0xFF7B61FF),
-                details:
-                    'GStreamer Elements (glimagesink, playbin3, ges) listos para preview y render.',
+                status: mediaDiagnostic.statusLabel,
+                statusColor: mediaStatusColor,
+                details: mediaDiagnostic.detail,
                 icon: Icons.video_settings_rounded,
               ),
               const SizedBox(height: 12),

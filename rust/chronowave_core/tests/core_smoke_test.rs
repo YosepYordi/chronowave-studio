@@ -1,4 +1,7 @@
-use chronowave_core::{core_version, media_engine_diagnostic_json, timeline_engine_name};
+use chronowave_core::{
+    core_version, media_engine_diagnostic_json, process_timeline_snapshot, timeline_engine_name,
+};
+use std::ffi::CString;
 
 #[test]
 fn exposes_stable_core_version_for_flutter_ffi_smoke_tests() {
@@ -17,4 +20,12 @@ fn exposes_media_engine_diagnostic_for_flutter() {
     assert!(diagnostic.contains("\"engine\":\"GStreamer/GES\""));
     assert!(diagnostic.contains("\"status\":\"simulated\""));
     assert!(diagnostic.contains("\"native_bindings\":false"));
+}
+
+#[test]
+fn processes_timeline_snapshots_only_in_simulated_mode() {
+    let snapshot = CString::new("{\"tracks\": [], \"clips\": []}").unwrap();
+
+    // SAFETY: CString mantiene un buffer válido y terminado en NUL durante la llamada.
+    assert_eq!(unsafe { process_timeline_snapshot(snapshot.as_ptr()) }, 1);
 }

@@ -31,9 +31,14 @@ class MediaEngineDiagnostic {
   final String detail;
 
   String get statusLabel {
-    if (nativeBindings) return '$engine listo';
-    if (nativeLibraryUsed) return '$engine simulado';
-    return '$engine planificado';
+    final label = switch (status) {
+      'planned' => 'planificado',
+      'simulated' => 'simulado',
+      'ready' => 'listo',
+      'unavailable' => 'no disponible',
+      _ => 'estado desconocido',
+    };
+    return '$engine $label';
   }
 
   factory MediaEngineDiagnostic.fromJson(
@@ -62,6 +67,17 @@ class MediaEngineDiagnostic {
           : 'Libreria Rust no disponible: $loadError',
     );
   }
+
+  factory MediaEngineDiagnostic.nativeUnavailable(String detail) {
+    return MediaEngineDiagnostic(
+      engine: 'GStreamer/GES',
+      status: 'unavailable',
+      mode: 'native-diagnostic-unavailable',
+      nativeBindings: false,
+      nativeLibraryUsed: true,
+      detail: detail,
+    );
+  }
 }
 
 class TimelineEngineResult {
@@ -83,7 +99,7 @@ class TimelineEngineResult {
   final int snapshotByteLength;
   final String message;
 
-  bool get accepted => code == 1 || code == 100;
+  bool get accepted => code == 1;
 
   String get modeLabel => nativeLibraryUsed ? 'Rust FFI' : 'Dart fallback';
 }
@@ -114,11 +130,7 @@ class ChronoWaveFfi {
             .lookupFunction<_CoreVersionNative, _CoreVersionDart>(
               'chronowave_core_version',
             ),
-        mediaEngineDiagnostic: resolvedLibrary
-            .lookupFunction<
-              _MediaEngineDiagnosticNative,
-              _MediaEngineDiagnosticDart
-            >('chronowave_media_engine_diagnostic'),
+        mediaEngineDiagnostic: _lookupMediaEngineDiagnostic(resolvedLibrary),
       );
     } catch (error) {
       return ChronoWaveFfi.fallback(error.toString());
@@ -158,20 +170,25 @@ class ChronoWaveFfi {
   MediaEngineDiagnostic get mediaEngineDiagnostic {
     final diagnosticLookup = _mediaEngineDiagnostic;
     if (diagnosticLookup == null) {
+      if (isNativeAvailable) {
+        return MediaEngineDiagnostic.nativeUnavailable(
+          'La libreria nativa no expone diagnostico del motor.',
+        );
+      }
       return MediaEngineDiagnostic.fallback(loadError);
     }
 
     try {
       final diagnosticPointer = diagnosticLookup();
       if (diagnosticPointer == nullptr) {
-        return MediaEngineDiagnostic.fallback(
+        return MediaEngineDiagnostic.nativeUnavailable(
           'chronowave_media_engine_diagnostic returned null',
         );
       }
 
       final decoded = jsonDecode(diagnosticPointer.toDartString());
       if (decoded is! Map<String, Object?>) {
-        return MediaEngineDiagnostic.fallback(
+        return MediaEngineDiagnostic.nativeUnavailable(
           'chronowave_media_engine_diagnostic returned non-object JSON',
         );
       }
@@ -181,7 +198,9 @@ class ChronoWaveFfi {
         nativeLibraryUsed: isNativeAvailable,
       );
     } catch (error) {
-      return MediaEngineDiagnostic.fallback(error.toString());
+      return isNativeAvailable
+          ? MediaEngineDiagnostic.nativeUnavailable(error.toString())
+          : MediaEngineDiagnostic.fallback(error.toString());
     }
   }
 
@@ -221,7 +240,7 @@ class ChronoWaveFfi {
         trackCount: trackCount,
         clipCount: clipCount,
         snapshotByteLength: snapshotByteLength,
-        message: code == 1 || code == 100
+        message: code == 1
             ? 'Snapshot aceptado por Rust FFI.'
             : 'Rust FFI rechazo el snapshot con codigo $code.',
       );
@@ -251,6 +270,19 @@ class ChronoWaveFfi {
     throw StateError(
       'No se pudo cargar la libreria nativa ChronoWave. ${errors.join(' | ')}',
     );
+  }
+
+  static _MediaEngineDiagnosticDart? _lookupMediaEngineDiagnostic(
+    DynamicLibrary library,
+  ) {
+    try {
+      return library.lookupFunction<
+        _MediaEngineDiagnosticNative,
+        _MediaEngineDiagnosticDart
+      >('chronowave_media_engine_diagnostic');
+    } on ArgumentError {
+      return null;
+    }
   }
 
   static List<String> _libraryCandidates() {

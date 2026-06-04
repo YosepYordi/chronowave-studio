@@ -3,6 +3,52 @@ import 'package:chronowave_studio/src/domain/project/project_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('uses diagnostic status as the source of the status label', () {
+    const expectedLabels = {
+      'planned': 'GStreamer/GES planificado',
+      'simulated': 'GStreamer/GES simulado',
+      'ready': 'GStreamer/GES listo',
+      'unavailable': 'GStreamer/GES no disponible',
+    };
+
+    for (final entry in expectedLabels.entries) {
+      final diagnostic = MediaEngineDiagnostic(
+        engine: 'GStreamer/GES',
+        status: entry.key,
+        mode: 'test',
+        nativeBindings: entry.key != 'ready',
+        nativeLibraryUsed: entry.key == 'planned',
+        detail: 'test diagnostic',
+      );
+
+      expect(diagnostic.statusLabel, entry.value);
+    }
+  });
+
+  test('accepts only the current simulated engine success code', () {
+    const current = TimelineEngineResult(
+      code: 1,
+      phase: 'test',
+      nativeLibraryUsed: true,
+      trackCount: 1,
+      clipCount: 0,
+      snapshotByteLength: 16,
+      message: 'accepted',
+    );
+    const retiredRealMode = TimelineEngineResult(
+      code: 100,
+      phase: 'test',
+      nativeLibraryUsed: true,
+      trackCount: 1,
+      clipCount: 0,
+      snapshotByteLength: 16,
+      message: 'retired',
+    );
+
+    expect(current.accepted, isTrue);
+    expect(retiredRealMode.accepted, isFalse);
+  });
+
   test('builds a stable timeline snapshot for Rust', () {
     final project = _sampleProject();
 
