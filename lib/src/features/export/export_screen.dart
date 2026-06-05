@@ -27,6 +27,8 @@ class _ExportScreenState extends State<ExportScreen> {
   ChronoProject? _activeProject;
   final ChronoWaveFfi _timelineEngine = ChronoWaveFfi.instance;
   TimelineEngineResult? _engineResult;
+  late final MediaEngineDiagnostic _mediaDiagnostic =
+      _timelineEngine.mediaEngineDiagnostic;
 
   @override
   void initState() {
@@ -227,6 +229,8 @@ class _ExportScreenState extends State<ExportScreen> {
                   fontSize: 14,
                 ),
               ),
+              const SizedBox(height: 24),
+              _buildEngineDiagnosticPanel(),
               const SizedBox(height: 24),
 
               // Nombre de archivo Glassmorphic
@@ -518,6 +522,54 @@ class _ExportScreenState extends State<ExportScreen> {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEngineDiagnosticPanel() {
+    final accentColor = _mediaDiagnostic.nativeBindings
+        ? const Color(0xFF10B981)
+        : _mediaDiagnostic.nativeLibraryUsed
+        ? const Color(0xFF00D4FF)
+        : const Color(0xFF7B61FF);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111827),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accentColor.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.memory_rounded, color: accentColor, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _mediaDiagnostic.statusLabel,
+                  style: GoogleFonts.sora(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _mediaDiagnostic.detail,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.dmSans(
+                    color: const Color(0xFF64748B),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

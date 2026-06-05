@@ -1,11 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import 'package:chronowave_studio/src/app/chronowave_app.dart';
 import 'package:chronowave_studio/src/core/database/database.dart';
+import 'package:chronowave_studio/src/core/ffi/chronowave_ffi.dart';
 
 void main() {
   setUp(() {
     // Asegurar que la base de datos se ejecute en modo mock simulado para los tests de widgets
     AppDatabase.isTesting = true;
+    ChronoWaveFfi.instanceForTesting = ChronoWaveFfi.fallback(
+      'test native library unavailable',
+    );
+  });
+
+  tearDown(() {
+    ChronoWaveFfi.instanceForTesting = null;
   });
 
   testWidgets('shows the ChronoWave technical starting point in Spanish', (
@@ -45,6 +54,7 @@ void main() {
     await tester.tap(find.text('Exportar'));
     await tester.pumpAndSettle();
     expect(find.text('Exportar Video'), findsOneWidget);
+    expect(find.text('GStreamer/GES planificado'), findsOneWidget);
     expect(find.text('INICIAR EXPORTACIÓN'), findsOneWidget);
 
     // Navegar a Ajustes
@@ -54,5 +64,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Configuración del estudio y hardware'), findsOneWidget);
     expect(find.text('Diagnósticos del Motor'), findsOneWidget);
+    expect(find.text('NO DISPONIBLE'), findsOneWidget);
+    expect(
+      find.text('Fallback Dart activo. Version nativa no disponible.'),
+      findsOneWidget,
+    );
+    expect(find.text('GStreamer/GES planificado'), findsOneWidget);
+    expect(
+      find.text('Libreria Rust no disponible: test native library unavailable'),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<Text>(find.text('NO DISPONIBLE')).style?.color,
+      const Color(0xFFFF6B9D),
+    );
+    expect(
+      tester.widget<Text>(find.text('GStreamer/GES planificado')).style?.color,
+      const Color(0xFF7B61FF),
+    );
   });
 }
