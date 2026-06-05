@@ -52,7 +52,8 @@ function Get-EnvironmentCheck {
 function Get-ExistingCommonRoot {
     $roots = @(
         "C:\gstreamer\1.0\msvc_x86_64",
-        "C:\Program Files\gstreamer\1.0\msvc_x86_64"
+        "C:\Program Files\gstreamer\1.0\msvc_x86_64",
+        "$env:LOCALAPPDATA\Programs\gstreamer\1.0\msvc_x86_64"
     )
 
     $roots |
