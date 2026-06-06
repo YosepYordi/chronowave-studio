@@ -106,7 +106,6 @@ pub fn verify_minimal_gstreamer_pipeline() -> Result<GStreamerPipelineSummary, S
 
 #[cfg(feature = "gstreamer-ges")]
 pub fn verify_headless_ges_test_clip_composition() -> Result<GesCompositionSummary, String> {
-    use gstreamer::prelude::*;
     use gstreamer_editing_services::prelude::*;
 
     initialize_gstreamer_ges()?;
