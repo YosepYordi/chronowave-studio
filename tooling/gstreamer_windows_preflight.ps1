@@ -43,20 +43,37 @@ function Get-EnvironmentCheck {
         [string]$Name
     )
 
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    $exists = $false
+    if ($value) {
+        $paths = @($value -split [IO.Path]::PathSeparator)
+        $exists = @($paths | Where-Object { $_ -and (Test-Path -LiteralPath $_) }).Count -gt 0
+    }
+
     [pscustomobject]@{
         name = $Name
-        value = [Environment]::GetEnvironmentVariable($Name)
+        value = $value
+        exists = $exists
     }
 }
 
 function Get-ExistingCommonRoot {
     $roots = @(
+        [Environment]::GetEnvironmentVariable("GSTREAMER_1_0_ROOT_MSVC_X86_64", "User"),
+        [Environment]::GetEnvironmentVariable("GSTREAMER_ROOT_X86_64", "User"),
+        "D:\ChronoWaveDeps\gstreamer\1.0\msvc_x86_64",
+        "E:\ChronoWaveDeps\gstreamer\1.0\msvc_x86_64",
         "C:\gstreamer\1.0\msvc_x86_64",
         "C:\Program Files\gstreamer\1.0\msvc_x86_64",
-        "$env:LOCALAPPDATA\Programs\gstreamer\1.0\msvc_x86_64"
+        "$env:LOCALAPPDATA\Programs\gstreamer\1.0\msvc_x86_64",
+        "$env:LOCALAPPDATA\Programs\gstreamer",
+        "$env:LOCALAPPDATA\gstreamer\1.0\msvc_x86_64",
+        "$env:LOCALAPPDATA\gstreamer"
     )
 
     $roots |
+        Where-Object { $_ } |
+        Select-Object -Unique |
         Where-Object { Test-Path -LiteralPath $_ } |
         ForEach-Object {
             [pscustomobject]@{

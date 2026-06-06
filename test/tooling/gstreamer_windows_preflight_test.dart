@@ -42,4 +42,53 @@ void main() {
       containsAll(['gst-launch-1.0', 'gst-inspect-1.0', 'pkg-config']),
     );
   });
+
+  test('GStreamer setup keeps installer downloads outside the repo', () {
+    final script = File('tooling/setup_gstreamer.ps1');
+    expect(script.existsSync(), isTrue);
+
+    final contents = script.readAsStringSync();
+    expect(contents, contains('[IO.Path]::GetTempPath()'));
+    expect(contents, isNot(contains('.gstreamer_temp')));
+  });
+
+  test('GStreamer setup verifies downloaded installer checksums', () {
+    final script = File('tooling/setup_gstreamer.ps1');
+    expect(script.existsSync(), isTrue);
+
+    final contents = script.readAsStringSync();
+    expect(contents, contains('.sha256sum'));
+    expect(contents, contains('Get-FileHash'));
+    expect(contents, contains('Installer hash mismatch'));
+  });
+
+  test('GStreamer setup uses a retrying downloader when available', () {
+    final script = File('tooling/setup_gstreamer.ps1');
+    expect(script.existsSync(), isTrue);
+
+    final contents = script.readAsStringSync();
+    expect(contents, contains('curl.exe'));
+    expect(contents, contains('--retry'));
+    expect(contents, contains('--fail'));
+  });
+
+  test('GStreamer setup checks free disk space before install', () {
+    final script = File('tooling/setup_gstreamer.ps1');
+    expect(script.existsSync(), isTrue);
+
+    final contents = script.readAsStringSync();
+    expect(contents, contains('RequiredFreeGB'));
+    expect(contents, contains('Assert-PathDriveHasFreeSpace'));
+    expect(contents, contains('requires at least'));
+  });
+
+  test('GStreamer setup env loads usable paths into the current process', () {
+    final script = File('tooling/setup_env.ps1');
+    expect(script.existsSync(), isTrue);
+
+    final contents = script.readAsStringSync();
+    expect(contents, contains(r'$env:GSTREAMER_1_0_ROOT_MSVC_X86_64'));
+    expect(contents, contains(r'$env:PKG_CONFIG_PATH'));
+    expect(contents, contains(r'$env:PATH'));
+  });
 }
