@@ -89,10 +89,11 @@ Queda pendiente instalar GStreamer MSVC x86_64 runtime/development con permisos 
 |`flutter --no-version-check analyze --no-pub`|paso|`No issues found!`.|
 |`flutter --no-version-check test --no-pub`|paso|`+21 ~3`; los 3 tests nativos FFI quedaron omitidos por variable de entorno, como antes.|
 |`git diff --check`|paso|Sin errores de whitespace; solo advertencias CRLF esperadas en Windows.|
+|Push automatico de documentacion a `origin/main`|paso con correccion|Un primer intento con indice temporal creo accidentalmente el commit vacio `7398fde` con mensaje de patch por no detenerse tras `git apply` fallido; no se reescribio historia. Luego se empujo `6ea5306` con mensaje `docs: report gstreamer setup preflight`, verificado como cambio exclusivo de `docs/reportes/2026-06-06-0851_codex_infra_gstreamer-setup-preflight.md` e `INDICE.md`.|
 
 ## 8. GitHub al finalizar
 
-* Se pregunto al humano si quiere enviar los cambios a GitHub: pendiente para codigo/tooling; no aplica para documentacion porque `docs/` debe subirse automaticamente a `origin/main` segun `AGENTS.md`.
+* Se pregunto al humano si quiere enviar los cambios a GitHub: pendiente para codigo/tooling; no aplica para documentacion porque `docs/` debe subirse automaticamente a `origin/main` segun `AGENTS.md` y ya se empujo.
 * Respuesta del humano, si existe: pendiente.
 * Rama sugerida: `codex/phase5-gstreamer-ges`
 * Mensaje de commit sugerido: `chore: harden gstreamer windows setup`
