@@ -1,8 +1,13 @@
-use std::ffi::{c_char, CStr};
+use std::ffi::{c_char, CStr, CString};
+use std::sync::OnceLock;
 
 const CORE_VERSION: &CStr = c"chronowave-core/0.1.0";
 const TIMELINE_ENGINE_NAME: &str = "gstreamer-ges-planned";
-const MEDIA_ENGINE_DIAGNOSTIC: &CStr = c"{\"engine\":\"GStreamer/GES\",\"status\":\"simulated\",\"mode\":\"rust-ffi-smoke\",\"native_bindings\":false,\"detail\":\"GStreamer/GES bindings are not compiled in this build; Rust FFI accepts timeline snapshots for preview/export diagnostics.\"}";
+#[cfg(not(feature = "gstreamer-ges"))]
+const SIMULATED_MEDIA_ENGINE_DIAGNOSTIC: &str = "{\"engine\":\"GStreamer/GES\",\"status\":\"simulated\",\"mode\":\"rust-ffi-smoke\",\"native_bindings\":false,\"detail\":\"GStreamer/GES bindings are not compiled in this build; Rust FFI accepts timeline snapshots for preview/export diagnostics.\"}";
+
+static MEDIA_ENGINE_DIAGNOSTIC_JSON: OnceLock<&'static str> = OnceLock::new();
+static MEDIA_ENGINE_DIAGNOSTIC_C_STRING: OnceLock<CString> = OnceLock::new();
 
 pub fn core_version() -> &'static str {
     CORE_VERSION
@@ -15,9 +20,7 @@ pub fn timeline_engine_name() -> &'static str {
 }
 
 pub fn media_engine_diagnostic_json() -> &'static str {
-    MEDIA_ENGINE_DIAGNOSTIC
-        .to_str()
-        .expect("static ChronoWave media diagnostic must be valid UTF-8")
+    MEDIA_ENGINE_DIAGNOSTIC_JSON.get_or_init(build_media_engine_diagnostic)
 }
 
 #[no_mangle]
@@ -27,7 +30,44 @@ pub extern "C" fn chronowave_core_version() -> *const c_char {
 
 #[no_mangle]
 pub extern "C" fn chronowave_media_engine_diagnostic() -> *const c_char {
-    MEDIA_ENGINE_DIAGNOSTIC.as_ptr()
+    MEDIA_ENGINE_DIAGNOSTIC_C_STRING
+        .get_or_init(|| {
+            CString::new(media_engine_diagnostic_json())
+                .expect("ChronoWave media diagnostic JSON must not contain NUL bytes")
+        })
+        .as_ptr()
+}
+
+#[cfg(feature = "gstreamer-ges")]
+fn build_media_engine_diagnostic() -> &'static str {
+    match initialize_gstreamer_ges() {
+        Ok(()) => "{\"engine\":\"GStreamer/GES\",\"status\":\"ready\",\"mode\":\"rust-gstreamer-ges\",\"native_bindings\":true,\"detail\":\"GStreamer and GStreamer Editing Services initialized successfully from Rust.\"}",
+        Err(detail) => Box::leak(
+            format!(
+                "{{\"engine\":\"GStreamer/GES\",\"status\":\"unavailable\",\"mode\":\"rust-gstreamer-ges\",\"native_bindings\":true,\"detail\":\"{}\"}}",
+                escape_json_string(&detail)
+            )
+            .into_boxed_str(),
+        ),
+    }
+}
+
+#[cfg(not(feature = "gstreamer-ges"))]
+fn build_media_engine_diagnostic() -> &'static str {
+    SIMULATED_MEDIA_ENGINE_DIAGNOSTIC
+}
+
+#[cfg(feature = "gstreamer-ges")]
+fn initialize_gstreamer_ges() -> Result<(), String> {
+    gstreamer::init().map_err(|error| format!("GStreamer initialization failed: {error}"))?;
+    gstreamer_editing_services::init()
+        .map_err(|error| format!("GStreamer Editing Services initialization failed: {error}"))?;
+    Ok(())
+}
+
+#[cfg(feature = "gstreamer-ges")]
+fn escape_json_string(value: &str) -> String {
+    value.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
 /// Procesa un snapshot del timeline en formato JSON enviado por Dart/Flutter.

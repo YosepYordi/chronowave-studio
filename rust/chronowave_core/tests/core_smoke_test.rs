@@ -18,8 +18,15 @@ fn exposes_media_engine_diagnostic_for_flutter() {
     let diagnostic = media_engine_diagnostic_json();
 
     assert!(diagnostic.contains("\"engine\":\"GStreamer/GES\""));
-    assert!(diagnostic.contains("\"status\":\"simulated\""));
-    assert!(diagnostic.contains("\"native_bindings\":false"));
+    if cfg!(feature = "gstreamer-ges") {
+        assert!(diagnostic.contains("\"status\":\"ready\""));
+        assert!(diagnostic.contains("\"native_bindings\":true"));
+        assert!(diagnostic.contains("\"mode\":\"rust-gstreamer-ges\""));
+    } else {
+        assert!(diagnostic.contains("\"status\":\"simulated\""));
+        assert!(diagnostic.contains("\"native_bindings\":false"));
+        assert!(diagnostic.contains("\"mode\":\"rust-ffi-smoke\""));
+    }
 }
 
 #[test]

@@ -8,3 +8,9 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # Dependencias ligeras listas para el puente FFI del MVP
+gstreamer = { version = "0.25.2", optional = true }
+gstreamer-editing-services = { version = "0.25.2", optional = true }
+
+[features]
+default = []
+gstreamer-ges = ["dep:gstreamer", "dep:gstreamer-editing-services"]
