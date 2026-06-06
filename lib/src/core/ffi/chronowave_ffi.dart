@@ -20,6 +20,8 @@ class MediaEngineDiagnostic {
     required this.mode,
     required this.nativeBindings,
     required this.nativeLibraryUsed,
+    required this.pipelineCheck,
+    required this.compositionCheck,
     required this.detail,
   });
 
@@ -28,6 +30,8 @@ class MediaEngineDiagnostic {
   final String mode;
   final bool nativeBindings;
   final bool nativeLibraryUsed;
+  final String pipelineCheck;
+  final String compositionCheck;
   final String detail;
 
   String get statusLabel {
@@ -51,6 +55,8 @@ class MediaEngineDiagnostic {
       mode: (json['mode'] as String?) ?? 'unknown',
       nativeBindings: (json['native_bindings'] as bool?) ?? false,
       nativeLibraryUsed: nativeLibraryUsed,
+      pipelineCheck: (json['pipeline_check'] as String?) ?? 'unknown',
+      compositionCheck: (json['composition_check'] as String?) ?? 'unknown',
       detail: (json['detail'] as String?) ?? 'Diagnostico sin detalle.',
     );
   }
@@ -62,6 +68,8 @@ class MediaEngineDiagnostic {
       mode: 'dart-fallback',
       nativeBindings: false,
       nativeLibraryUsed: false,
+      pipelineCheck: 'not-run',
+      compositionCheck: 'not-run',
       detail: loadError == null || loadError.isEmpty
           ? 'Libreria Rust pendiente; usando diagnostico Dart.'
           : 'Libreria Rust no disponible: $loadError',
@@ -75,6 +83,8 @@ class MediaEngineDiagnostic {
       mode: 'native-diagnostic-unavailable',
       nativeBindings: false,
       nativeLibraryUsed: true,
+      pipelineCheck: 'unknown',
+      compositionCheck: 'unknown',
       detail: detail,
     );
   }

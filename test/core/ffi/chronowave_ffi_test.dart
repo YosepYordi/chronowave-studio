@@ -18,6 +18,8 @@ void main() {
         mode: 'test',
         nativeBindings: entry.key != 'ready',
         nativeLibraryUsed: entry.key == 'planned',
+        pipelineCheck: 'not-run',
+        compositionCheck: 'not-run',
         detail: 'test diagnostic',
       );
 
@@ -47,6 +49,30 @@ void main() {
 
     expect(current.accepted, isTrue);
     expect(retiredRealMode.accepted, isFalse);
+  });
+
+  test('parses optional native engine check fields with safe defaults', () {
+    final legacyDiagnostic = MediaEngineDiagnostic.fromJson(const {
+      'engine': 'GStreamer/GES',
+      'status': 'ready',
+      'mode': 'legacy-native',
+      'native_bindings': true,
+      'detail': 'legacy diagnostic',
+    }, nativeLibraryUsed: true);
+    final phase5Diagnostic = MediaEngineDiagnostic.fromJson(const {
+      'engine': 'GStreamer/GES',
+      'status': 'ready',
+      'mode': 'rust-gstreamer-ges',
+      'native_bindings': true,
+      'pipeline_check': 'ready',
+      'composition_check': 'ready',
+      'detail': 'phase 5 diagnostic',
+    }, nativeLibraryUsed: true);
+
+    expect(legacyDiagnostic.pipelineCheck, 'unknown');
+    expect(legacyDiagnostic.compositionCheck, 'unknown');
+    expect(phase5Diagnostic.pipelineCheck, 'ready');
+    expect(phase5Diagnostic.compositionCheck, 'ready');
   });
 
   test('builds a stable timeline snapshot for Rust', () {

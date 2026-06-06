@@ -8,6 +8,29 @@ fn exposes_stable_core_version_for_flutter_ffi_smoke_tests() {
     assert_eq!(core_version(), "chronowave-core/0.1.0");
 }
 
+#[cfg(feature = "gstreamer-ges")]
+#[test]
+fn builds_minimal_gstreamer_pipeline_with_test_source() {
+    let summary = chronowave_core::verify_minimal_gstreamer_pipeline()
+        .expect("minimal GStreamer pipeline should move to Ready and back to Null");
+
+    assert!(summary.ready);
+    assert_eq!(summary.description, "videotestsrc num-buffers=1 ! fakesink");
+}
+
+#[cfg(feature = "gstreamer-ges")]
+#[test]
+fn creates_headless_ges_composition_with_generated_test_clip() {
+    let summary = chronowave_core::verify_headless_ges_test_clip_composition()
+        .expect("GES should build a headless timeline with one generated test clip");
+
+    assert!(summary.committed);
+    assert_eq!(summary.layer_count, 1);
+    assert_eq!(summary.clip_count, 1);
+    assert!(summary.track_count >= 1);
+    assert!(summary.duration_ms >= 1000);
+}
+
 #[test]
 fn names_the_initial_timeline_engine() {
     assert_eq!(timeline_engine_name(), "gstreamer-ges-planned");
