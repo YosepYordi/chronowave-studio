@@ -61,6 +61,7 @@ No se modifico codigo de produccion en este turno.
 |Revision de alcance|paso|Video real, exportacion, Android packaging y UI de seleccion de FPS quedaron explicitamente fuera de alcance.|
 |Revision del modelo y SQLite actuales|paso|Se confirmo que `ChronoProject` no tiene FPS y la tabla `projects` requiere una migracion de columna.|
 |Pruebas tecnicas|no ejecutado|No se modifico codigo de produccion; las pruebas se ejecutaran durante la implementacion.|
+|Push documental obligatorio|paso|El commit `a370582` se envio a `origin/main`; este reporte recibio despues una actualizacion documental final con la evidencia del push.|
 
 ## 8. GitHub al finalizar
 
@@ -68,7 +69,7 @@ No se modifico codigo de produccion en este turno.
 * Respuesta del humano, si existe: aprobo todas las secciones del diseno.
 * Rama sugerida: `codex/phase6-preview-controls` para la futura implementacion.
 * Mensaje de commit sugerido: no aplica para codigo en este turno.
-* Metodo sugerido: la documentacion en `docs/` se envia automaticamente a `origin/main` segun `AGENTS.md`; `.ai/` permanece local.
+* Metodo sugerido: push directo de documentacion; realizado a `origin/main`. `.ai/` permanece local.
 
 ## 9. Riesgos y pendientes
 
