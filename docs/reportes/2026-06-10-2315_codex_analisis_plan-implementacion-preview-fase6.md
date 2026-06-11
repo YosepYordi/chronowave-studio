@@ -64,6 +64,7 @@ No se modifico codigo de produccion ni se ejecutaron pruebas tecnicas en este tu
 |Revision de migracion SQLite|paso|El plan detecta la columna por `PRAGMA table_info` antes de ejecutar `ALTER TABLE ADD COLUMN`.|
 |`git diff --check`|paso|Sin errores de espacios o formato de parche.|
 |Pruebas de producto|no ejecutado|No se cambio codigo de produccion; el plan exige ciclos RED/GREEN durante la implementacion.|
+|Push documental obligatorio|paso|El commit `33b7f01` se envio a `origin/main`; luego se actualizo este reporte con la evidencia exacta.|
 
 ## 8. GitHub al finalizar
 
@@ -71,7 +72,7 @@ No se modifico codigo de produccion ni se ejecutaron pruebas tecnicas en este tu
 * Respuesta del humano, si existe: pidio continuar despues de aprobar la especificacion.
 * Rama sugerida: `codex/phase6-preview-controls`.
 * Mensaje de commit sugerido: definido por cada tarea dentro del plan.
-* Metodo sugerido: documentacion enviada automaticamente a `origin/main`; plan y spec internas permanecen locales.
+* Metodo sugerido: push directo de documentacion; realizado a `origin/main`. Plan y spec internas permanecen locales.
 
 ## 9. Riesgos y pendientes
 
